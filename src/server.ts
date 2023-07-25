@@ -40,7 +40,8 @@ import {
 import { CosmicDSSession } from "./models";
 
 import { ParsedQs } from "qs";
-import express, { Request, Response as ExpressResponse } from "express";
+import { config } from "dotenv";
+import express, { Request, Response as ExpressResponse, NextFunction } from "express";
 import { Response } from "express-serve-static-core";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -49,9 +50,13 @@ import sequelizeStore from "connect-session-sequelize";
 import { v4 } from "uuid";
 import cors from "cors";
 import jwt from "jsonwebtoken";
+
+import { isValidAPIKey } from "./authorization";
 import { isStudentOption } from "./models/student_options";
 import { isNumberArray, isStringArray } from "./utils";
+
 export const app = express();
+config();
 
 // TODO: Clean up these type definitions
 
@@ -106,6 +111,17 @@ const store = new SequelizeStore({
   }
 });
 
+function apiKeyMiddleware(req: Request, res: ExpressResponse, next: NextFunction): void {
+  const key = req.get("Authorization");
+  if (isValidAPIKey(key)) {
+    next();
+  } else {
+    res.statusCode = 401;
+    res.json({ message: "You must provide a valid CosmicDS API key!" });
+    res.end();
+  }
+}
+
 const SECRET = "ADD_REAL_SECRET";
 const SESSION_NAME = "cosmicds";
 
@@ -125,6 +141,8 @@ app.use(session({
   }
 }));
 store.sync();
+
+app.use(apiKeyMiddleware);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
