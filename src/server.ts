@@ -1,5 +1,6 @@
 import {
   cosmicdsDB,
+  isValidAPIKey,
   checkEducatorLogin,
   checkStudentLogin,
   createClass,
@@ -24,7 +25,6 @@ import {
   getStudentOptions,
   setStudentOption,
   classSize,
-  
 } from "./database";
 
 import {
@@ -48,7 +48,6 @@ import { v4 } from "uuid";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 
-import { isValidAPIKey } from "./authorization";
 import { isStudentOption } from "./models/student_options";
 
 export const app = express();
@@ -109,7 +108,8 @@ const store = new SequelizeStore({
 
 function apiKeyMiddleware(req: Request, res: ExpressResponse, next: NextFunction): void {
   const key = req.get("Authorization");
-  if (isValidAPIKey(key)) {
+  const isValid = key !== undefined && isValidAPIKey(key);
+  if (isValid) {
     next();
   } else {
     res.statusCode = 401;
