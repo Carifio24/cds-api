@@ -114,7 +114,7 @@ const store = new SequelizeStore({
 function apiKeyMiddleware(req: Request, res: ExpressResponse, next: NextFunction): void {
   const key = req.get("Authorization");
   const isValid = key !== undefined && isValidAPIKey(key);
-  if (isValid) {
+  if (req.method === "GET" || isValid) {
     next();
   } else {
     res.statusCode = 401;
