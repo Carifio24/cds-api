@@ -1,6 +1,5 @@
 import {
   cosmicdsDB,
-  isValidAPIKey,
   checkEducatorLogin,
   checkStudentLogin,
   createClass,
@@ -30,6 +29,8 @@ import {
   currentVersionForQuestion,
   getQuestionsForStory,
 } from "./database";
+
+import { isValidAPIKey } from "./authorization";
 
 import {
   CreateClassResult,
@@ -111,10 +112,9 @@ const store = new SequelizeStore({
   }
 });
 
-function apiKeyMiddleware(req: Request, res: ExpressResponse, next: NextFunction): void {
+async function apiKeyMiddleware(req: Request, res: ExpressResponse, next: NextFunction): Promise<void> {
   const key = req.get("Authorization");
-  const isValid = key !== undefined && isValidAPIKey(key);
-  if (req.method === "GET" || isValid) {
+  if (req.method === "GET" || (key !== undefined && await isValidAPIKey(key))) {
     next();
   } else {
     res.statusCode = 401;

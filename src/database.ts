@@ -66,7 +66,6 @@ export const cosmicdsDB = new Sequelize(dbName, username, password, {
     }
 });
 
-const HASHER = new SHA3(256);
 
 // Initialize our models with our database connection
 initializeModels(cosmicdsDB);
@@ -77,18 +76,6 @@ initializeModels(cosmicdsDB);
 
 // Create any associations that we need
 setUpAssociations();
-
-function hashKey(key: string): string {
-  HASHER.reset();
-  HASHER.update(key);
-  return HASHER.digest("hex");
-}
-
-export async function isValidAPIKey(key: string): Promise<boolean> {
-  const hashedKey = hashKey(key);
-  const apiKey = await APIKey.findOne({ where: { hashed_key: hashedKey } });
-  return apiKey !== null;
-}
 
 // For now, this just distinguishes between duplicate account creation and other errors
 // We can flesh this out layer
