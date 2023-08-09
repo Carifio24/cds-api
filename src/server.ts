@@ -108,8 +108,21 @@ const store = new SequelizeStore({
 });
 
 async function apiKeyMiddleware(req: Request, res: ExpressResponse, next: NextFunction): Promise<void> {
+  console.log("apiKeyMiddleware");
   const key = req.get("Authorization");
-  if (req.method === "GET" || (key !== undefined && await isValidAPIKey(key))) {
+  const get = req.method === "GET";
+  console.log(req.session.id);
+  console.log(store.get(req.session.id, (err, session) => {
+    if (err) { console.log(err); }
+    console.log(session);
+  }));
+  const validKey = key !== undefined && await isValidAPIKey(key);
+  if (validKey) {
+    console.log("Saving session!");
+    req.session.resetMaxAge();
+    req.session.save();
+  }
+  if (get || validKey) {
     next();
   } else {
     res.statusCode = 401;
@@ -127,8 +140,8 @@ app.use(session({
   genid: (_req) => v4(),
   store: store,
   name: SESSION_NAME,
-  saveUninitialized: false,
-  resave: true,
+  saveUninitialized: true,
+  resave: false,
   cookie: {
     path: "/",
     maxAge: SESSION_MAX_AGE,
@@ -149,15 +162,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(function(req, res, next) {
 
   const origin = req.get("origin");
-  console.log(origin);
   if (origin !== undefined && ALLOWED_ORIGINS.includes(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
   }
-  next();
-});
-
-app.all("*", (req, _res, next) => {
-  console.log(req.session.id);
   next();
 });
 
