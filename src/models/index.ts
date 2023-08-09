@@ -11,6 +11,7 @@ import { Student, initializeStudentModel } from "./student";
 import { Sequelize } from "sequelize/types";
 import { initializeStudentOptionsModel } from "./student_options";
 import { initializeQuestionModel } from "./question";
+import { initializeAPIKeyModel } from "./api_key";
 
 export {
   Class,
@@ -25,6 +26,7 @@ export {
   StudentsClasses,
 };
 export function initializeModels(db: Sequelize) {
+  initializeAPIKeyModel(db);
   initializeSessionModel(db);
   initializeEducatorModel(db);
   initializeClassModel(db);
