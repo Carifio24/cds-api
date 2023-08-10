@@ -41,7 +41,6 @@ import {
 import { CosmicDSSession } from "./models";
 
 import { ParsedQs } from "qs";
-import { config } from "dotenv";
 import express, { Request, Response as ExpressResponse, NextFunction } from "express";
 import { Response } from "express-serve-static-core";
 import bodyParser from "body-parser";
@@ -55,7 +54,6 @@ import jwt from "jsonwebtoken";
 import { isStudentOption } from "./models/student_options";
 
 export const app = express();
-config();
 
 // TODO: Clean up these type definitions
 
