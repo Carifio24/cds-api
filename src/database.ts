@@ -66,7 +66,6 @@ export const cosmicdsDB = new Sequelize(dbName, username, password, {
     }
 });
 
-
 // Initialize our models with our database connection
 initializeModels(cosmicdsDB);
 // (async () => {
