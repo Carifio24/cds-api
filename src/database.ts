@@ -33,8 +33,6 @@ import { initializeModels } from "./models";
 import { StudentOption, StudentOptions } from "./models/student_options";
 import { Question } from "./models/question";
 import { logger } from "./logger";
-import { APIKey } from "./models/api_key";
-import { SHA3 } from "sha3";
 
 type SequelizeError = { parent: { code: string } };
 
