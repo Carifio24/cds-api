@@ -30,7 +30,7 @@ import {
   getQuestionsForStory,
 } from "./database";
 
-import { isValidAPIKey } from "./authorization";
+import { getAPIKey, hasPermission } from "./authorization";
 
 import {
   CreateClassResult,
@@ -76,10 +76,7 @@ export enum UserType {
   Admin
 }
 
-const ALLOWED_ORIGINS = [
-  "http://192.168.99.136:8081",
-  "https://cosmicds.github.io"
-];
+const ALLOWED_HOSTS = process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(",") : [];
 
 const corsOptions: cors.CorsOptions = {
     origin: "*",
@@ -111,8 +108,13 @@ const store = new SequelizeStore({
 });
 
 async function apiKeyMiddleware(req: Request, res: ExpressResponse, next: NextFunction): Promise<void> {
+
+  // The whitelisting of hosts is temporary!
+  const host = req.headers.referer;
+  const validOrigin = host && ALLOWED_HOSTS.includes(host);
   const key = req.get("Authorization");
-  if (key !== undefined && await isValidAPIKey(key)) {
+  const apiKey = key ? await getAPIKey(key) : null;
+  if (validOrigin || (apiKey !== null && hasPermission(apiKey, req.originalUrl))) {
     next();
   } else {
     res.statusCode = 401;
@@ -153,7 +155,7 @@ app.use(function(req, res, next) {
 
   const origin = req.get("origin");
   console.log(origin);
-  if (origin !== undefined && ALLOWED_ORIGINS.includes(origin)) {
+  if (origin !== undefined && ALLOWED_HOSTS.includes(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
   }
   next();
