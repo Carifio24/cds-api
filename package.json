@@ -3,7 +3,8 @@
     "build": "tsc",
     "lint": "node_modules/.bin/eslint src --ext .ts",
     "serve": "node dist/main.js",
-    "start": "npm run serve"
+    "start": "npm run serve",
+    "test": "jest"
   },
   "dependencies": {
     "@effect/schema": "^0.63.2",
@@ -46,5 +47,11 @@
   },
   "engines": {
     "node": "18.18.0"
+  },
+  "jest": {
+      "testEnvironment": "node",
+      "coveragePathIgnorePatters": [
+          "/node_modules/"
+      ]
   }
 }
