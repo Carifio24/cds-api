@@ -52,32 +52,30 @@ export type CreateClassResponse = {
   class?: object | undefined;
 }
 
-// Grab any environment variables
-// Currently, just the DB password
-dotenv.config();
+export function createDB() {
 
-const dbName = "cosmicds_db";
-const username = "cdsadmin";
-const password = process.env.DB_PASSWORD;
-//const username = "jon";
-//const password = "Testp@ss123";
-export const cosmicdsDB = new Sequelize(dbName, username, password, {
-    host: "cosmicds-db.cupwuw3jvfpc.us-east-1.rds.amazonaws.com",
-    dialect: "mysql",
-    define: {
-      timestamps: false
-    }
-});
+  // Grab any environment variables
+  dotenv.config();
+  
+  const dbName = process.env.DB_NAME as string;
+  const username = process.env.DB_USERNAME as string;
+  const password = process.env.DB_PASSWORD;
+  const cosmicdsDB = new Sequelize(dbName, username, password, {
+      host: process.env.DB_HOSTNAME as string,
+      dialect: "mysql",
+      define: {
+        timestamps: false
+      }
+  });
+  
+  // Initialize our models with our database connection
+  initializeModels(cosmicdsDB);
+  
+  // Create any associations that we need
+  setUpAssociations();
 
-// Initialize our models with our database connection
-initializeModels(cosmicdsDB);
-// (async () => {
-//   await CosmicDSSession.sync({}).catch(console.log);
-//   console.log("Done sync!");
-// })();
-
-// Create any associations that we need
-setUpAssociations();
+  return cosmicdsDB; 
+}
 
 // For now, this just distinguishes between duplicate account creation and other errors
 // We can flesh this out layer

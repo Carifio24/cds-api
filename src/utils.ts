@@ -4,6 +4,19 @@ import { v5 } from "uuid";
 
 import { Model } from "sequelize";
 
+import { ParsedQs } from "qs";
+import { Request } from "express";
+import { Response } from "express-serve-static-core";
+
+export const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : [];
+
+// TODO: Clean up these type definitions
+// eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
+export type GenericRequest = Request<{}, any, any, ParsedQs, Record<string, any>>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type GenericResponse = Response<any, Record<string, any>, number>;
+
+
 // This type describes objects that we're allowed to pass to a model's `update` method
 export type UpdateAttributes<M extends Model> = Parameters<M["update"]>[0];
 
