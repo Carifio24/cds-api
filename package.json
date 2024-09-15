@@ -49,11 +49,5 @@
   },
   "engines": {
     "node": "18.18.0"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "coveragePathIgnorePatterns": [
-      "/node_modules/"
-    ]
   }
 }
