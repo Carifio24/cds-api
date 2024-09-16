@@ -79,7 +79,8 @@ export function getDatabaseConnection(options?: DBConnectionOptions) {
       host: process.env.DB_HOSTNAME as string,
       dialect: "mysql",
       define: {
-        timestamps: false
+        timestamps: false,
+        engine: "InnoDB",
       }
   });
 

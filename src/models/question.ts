@@ -67,7 +67,6 @@ export function initializeQuestionModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB",
     indexes: [
       {
         fields: ["tag"]

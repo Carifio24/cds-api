@@ -29,7 +29,6 @@ export function initializeSessionModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB",
     tableName: "Sessions"
   });
 }

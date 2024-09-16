@@ -64,6 +64,5 @@ export function initializeClassModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

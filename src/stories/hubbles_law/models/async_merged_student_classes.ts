@@ -44,6 +44,5 @@ export function initializeAsyncMergedHubbleStudentClassesModel(sequelize: Sequel
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

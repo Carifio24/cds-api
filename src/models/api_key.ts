@@ -35,6 +35,5 @@ export function initializeAPIKeyModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

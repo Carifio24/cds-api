@@ -110,7 +110,6 @@ export function initializeStudentModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB",
     indexes: [
       {
         unique: true,

@@ -31,6 +31,5 @@ export function initializeDashboardClassGroupModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

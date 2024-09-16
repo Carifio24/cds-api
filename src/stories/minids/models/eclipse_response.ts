@@ -51,6 +51,5 @@ export function initializeEclipseMiniResponseModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

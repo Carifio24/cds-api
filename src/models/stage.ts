@@ -33,7 +33,6 @@ export function initializeStageModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB",
     indexes: [
       {
         unique: true,

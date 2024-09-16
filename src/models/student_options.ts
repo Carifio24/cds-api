@@ -49,6 +49,5 @@ export function initializeStudentOptionsModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

@@ -29,6 +29,5 @@ export function initializeIgnoreStudentModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

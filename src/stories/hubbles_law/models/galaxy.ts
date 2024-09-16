@@ -86,6 +86,5 @@ export function initializeGalaxyModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

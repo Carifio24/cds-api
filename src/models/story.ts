@@ -26,6 +26,5 @@ export function initializeStoryModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

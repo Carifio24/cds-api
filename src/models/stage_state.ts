@@ -46,6 +46,5 @@ export function initializeStageStateModel(sequelize: Sequelize) {
       }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

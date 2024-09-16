@@ -34,6 +34,5 @@ export function initializeSyncMergedHubbleClassesModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

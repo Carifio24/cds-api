@@ -43,7 +43,6 @@ export function initializeHubbleClassDataModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB",
     freezeTableName: true
   });
 }

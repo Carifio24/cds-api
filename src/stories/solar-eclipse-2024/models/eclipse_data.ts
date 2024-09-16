@@ -103,6 +103,5 @@ export function initializeSolarEclipse2024DataModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB",
   });
 }

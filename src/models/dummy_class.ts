@@ -29,6 +29,5 @@ export function initializeDummyClassModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

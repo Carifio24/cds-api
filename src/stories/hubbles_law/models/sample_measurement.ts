@@ -89,6 +89,5 @@ export function initializeSampleHubbleMeasurementModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB"
   });
 }

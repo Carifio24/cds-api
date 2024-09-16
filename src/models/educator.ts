@@ -101,7 +101,6 @@ export function initializeEducatorModel(sequelize: Sequelize) {
     }
   }, {
     sequelize,
-    engine: "InnoDB",
     indexes: [
       {
         unique: true,
