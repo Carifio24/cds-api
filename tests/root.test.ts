@@ -1,8 +1,10 @@
 import { describe, it } from "@jest/globals";
 
-import testApp, { authorizedRequest } from "./utils";
+import testApp, { authorizedRequest, runApp } from "./utils";
 
-describe("Test root route", async() => {
+describe("Test root route", () => {
+  runApp(testApp);
+
   it("Should show a welcome message", async () => {
     authorizedRequest(testApp)
       .get("/")

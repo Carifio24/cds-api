@@ -37,6 +37,8 @@
     "sequelize": "^6.37.1",
     "sha3": "^2.1.4",
     "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.2",
     "uuid": "^8.3.2",
     "winston": "^3.10.0"

@@ -2,9 +2,9 @@ import { Express } from "express";
 import request from "supertest";
 import { Sequelize } from "sequelize";
 
-import { setUpAssociations } from "../associations";
-import { initializeModels } from "../models";
-import { createApp } from "../server";
+import { setUpAssociations } from "../src/associations";
+import { initializeModels } from "../src/models";
+import { createApp } from "../src/server";
 
 export function authorizedRequest(app: Express) {
   return request(app)
@@ -20,13 +20,18 @@ export function unauthorizedRequest(app: Express) {
 function createTestDatabase(): Sequelize {
   const db = new Sequelize({ dialect: "mysql" });
   db.query("CREATE DATABASE IF NOT EXISTS test");
+
+  initializeModels(db);
+  setUpAssociations();
   return db;
 }
 
-const testDB = createTestDatabase();
-setUpAssociations();
-initializeModels(testDB);
+export function runApp(app: Express, port=8080) {
+  app.listen(port);
+}
 
+const testDB = createTestDatabase();
+console.log(testDB);
 const app = createApp(testDB);
 
 export default app;
