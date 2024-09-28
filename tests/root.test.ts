@@ -30,13 +30,10 @@ describe("Test root route", () => {
   });
 
   it("Should show a welcome message", async () => {
-    console.log("Starting test!");
     authorize(request(testApp).get("/"))
       .expect(200)
       .expect("Content-Type", /json/)
       .expect({ message: "Welcome to the CosmicDS server!" });
-
-    console.log("Done!");
   }, 10_000);
 
   it("Should run", () => {
