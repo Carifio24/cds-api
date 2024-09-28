@@ -35,8 +35,4 @@ describe("Test root route", () => {
       .expect("Content-Type", /json/)
       .expect({ message: "Welcome to the CosmicDS server!" });
   }, 10_000);
-
-  it("Should run", () => {
-    expect(1 + 1).toBe(2);
-  });
 });
