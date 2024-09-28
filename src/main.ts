@@ -6,8 +6,13 @@ import { getDatabaseConnection } from "./database";
 const STORIES_DIR = join(__dirname, "stories");
 const MAIN_FILE = "main.js";
 
-const db = getDatabaseConnection();
-const app = createApp(db);
+// const db = getDatabaseConnection();
+// const app = createApp(db);
+
+import { createTestApp, runApp, setupTestDatabase } from "../tests/utils";
+const app = createTestApp();
+const db = setupTestDatabase();
+
 promises.readdir(STORIES_DIR, { withFileTypes: true }).then(entries => {
   entries.forEach(async (entry) => {
     if (entry.isDirectory()) {
@@ -20,7 +25,7 @@ promises.readdir(STORIES_DIR, { withFileTypes: true }).then(entries => {
 });
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8081;
-app.listen(PORT, () => {
+const PORT = Number(process.env.PORT) || 8081;
+runApp(app, PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });

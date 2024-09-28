@@ -63,9 +63,9 @@ export enum UserType {
 }
 
 export interface DBConnectionOptions {
-  dbName: string;
-  username: string;
-  password: string;
+  dbName?: string;
+  username?: string;
+  password?: string;
 }
 
 export function getDatabaseConnection(options?: DBConnectionOptions) {

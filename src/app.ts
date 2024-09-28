@@ -60,7 +60,7 @@ export function setupApp(app: Express, db: Sequelize) {
       secure: PRODUCTION
     }
   }));
-  store.sync();
+  // store.sync();
 
   app.use(apiKeyMiddleware);
 
