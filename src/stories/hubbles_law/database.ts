@@ -8,8 +8,14 @@ import { HubbleClassData } from "./models/hubble_class_data";
 import { IgnoreStudent } from "../../models/ignore_student";
 import { logger } from "../../logger";
 import { HubbleClassMergeGroup } from "./models/hubble_class_merge_group";
+import * as S from "@effect/schema/Schema";
 
 const galaxyAttributes = ["id", "ra", "decl", "z", "type", "name", "element"];
+
+export const HubbleMeasurementSchema = S.struct({
+  student_id: S.number.pipe(S.int()),
+  galaxy_id: S.optional(S.string),
+});
 
 export async function submitHubbleMeasurement(data: {
   student_id: number,
