@@ -125,3 +125,8 @@ export function isStringArray(arr: any): arr is string[] {
 export function mySqlDatetime(dt: Date): string {
   return `${String(dt.getUTCFullYear()).padStart(4, "0")}-${String(dt.getUTCMonth()+1).padStart(2, "0")}-${String(dt.getUTCDay()).padStart(2, "0")} ${String(dt.getUTCHours()).padStart(2, "0")}:${String(dt.getUTCMinutes()).padStart(2, "0")}:${String(dt.getUTCSeconds()).padStart(2, "0")}`;
 }
+
+// I don't love the nested ternary, but we can't do boolean operations on the `extends` conditions
+export type UpdateState<S> = {
+  [K in keyof S as (K extends string ? (S[K] extends number ? `delta_${K}` : K) : K)]?: S[K];
+};
