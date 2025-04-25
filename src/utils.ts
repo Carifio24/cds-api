@@ -125,3 +125,29 @@ export function isStringArray(arr: any): arr is string[] {
 export function mySqlDatetime(dt: Date): string {
   return `${String(dt.getUTCFullYear()).padStart(4, "0")}-${String(dt.getUTCMonth()+1).padStart(2, "0")}-${String(dt.getUTCDay()).padStart(2, "0")} ${String(dt.getUTCHours()).padStart(2, "0")}:${String(dt.getUTCMinutes()).padStart(2, "0")}:${String(dt.getUTCSeconds()).padStart(2, "0")}`;
 }
+
+/** These next two functions are for generically updating a "state" object from a partial state
+  * This will fail if the update has an object for a key where the original state has a primitive.
+  * But that's fine - avoiding schemas that mix objects and primitives is probably good.
+  * */
+type SimpleValue = object | string | number | boolean;
+type SimpleObject = Record<string, SimpleValue>;
+export function keyPathAssign(object: SimpleObject, keyPath: string[], value: SimpleValue) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let obj: any = object;
+  // This isn't an off-by-one error - we don't want to include the last valid index in the loop
+  // as that's where we'll do the value assignment
+  for (let i = 0; i < keyPath.length - 1; i++) {
+    const key = keyPath[i];
+    obj = obj[key] ?? {};
+  }
+  obj[keyPath[keyPath.length-1]] = value;
+}
+
+export function update(object: SimpleObject, from: SimpleObject, pathDelimiter = ".") {
+  for (const entry of Object.entries(from)) {
+    const [key, value] = entry;
+    const keyPath = key.split(pathDelimiter);
+    keyPathAssign(object, keyPath, value);
+  }
+}
