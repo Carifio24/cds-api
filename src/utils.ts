@@ -33,6 +33,10 @@ export type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
 }
 
+export type AllOptional<T> = {
+  [P in keyof T]?: T[P];
+}
+
 function pairType<T>(type: S.Schema<T,T,never>): S.Schema<[T, T], [T, T], never> {
   return S.mutable(S.tuple(type, type));
 }
@@ -130,3 +134,25 @@ export function mySqlDatetime(dt: Date): string {
 export type UpdateState<S> = {
   [K in keyof S as (K extends string ? (S[K] extends number ? `delta_${K}` : K) : K)]?: S[K];
 };
+
+export type KeyOfValue<T, V> = {
+  [K in keyof T]: T[K] extends V ? K : never;
+}[keyof T];
+
+function updateData<S extends object>(data: S, update: UpdateState<S>): AllOptional<S> {
+  const updatedData: AllOptional<S> = {};
+
+  update;
+
+  for (const [key, item] of Object.entries(data) as ([keyof S, S[keyof S]][])) {
+    if (typeof item === "number") {
+      // 
+    } else if (Array.isArray(item)) {
+
+    } else if (typeof item === "boolean") {
+      updatedData[key] = true;
+    }
+  }
+  
+  return updatedData;
+}
