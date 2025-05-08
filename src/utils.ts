@@ -130,3 +130,26 @@ export function mySqlDatetime(dt: Date): string {
 export type UpdateState<S> = {
   [K in keyof S as (K extends string ? (S[K] extends number ? `delta_${K}` : K) : K)]?: S[K];
 };
+
+export type AllOptional<S> = {
+  [K in keyof S]?: S[K];
+};
+
+type State = Record<string, number | boolean | string | object | null>;
+
+export function updateState<S>(state: S, update: AllOptional<S>) {
+  const keys = Object.keys(update) as (keyof AllOptional<S>)[];
+  for (const key of keys) {
+    const updateValue = update[key];
+    if (!updateValue) {
+      continue;
+    }
+    if (typeof updateValue === "number") {
+      const value = state[key] as unknown as number;
+      state[key] = value + updateValue;
+    } else if (typeof updateValue === "boolean") {
+      updated[key] = value 
+    }
+  }
+
+}
