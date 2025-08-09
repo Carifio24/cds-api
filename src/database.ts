@@ -74,24 +74,27 @@ export interface DBConnectionOptions {
 }
 
 export function getDatabaseConnection(options?: DBConnectionOptions) {
-// Grab any environment variables
+  // Grab any environment variables
   dotenv.config();
 
   const dbName = options?.dbName ?? process.env.DB_NAME as string;
   const username = options?.username ?? process.env.DB_USERNAME as string;
   const password = options?.password ?? process.env.DB_PASSWORD as string;
   const host = options?.host ?? process.env.DB_HOSTNAME as string;
-  const logging = options?.logging ?? console.log;
-  const database = new Sequelize(dbName, username, password, {
-      host,
-      logging,
-      dialect: "mysql",
-      define: {
-        timestamps: false,
-        engine: "InnoDB",
-      }
-  });
-
+  let logging = options?.logging ?? false;
+  if (!logging && (process.env.SQL_LOGGING as string).toLowerCase() === "true") {
+    logging = logger.info;
+  }
+  const sequelizeOptions: Options = {
+    host,
+    logging,
+    dialect: "mysql",
+    define: {
+      timestamps: false,
+      engine: "InnoDB",
+    }
+  };
+  const database = new Sequelize(dbName, username, password, sequelizeOptions);
   // Initialize our models with our database connection
   initializeModels(database);
 
