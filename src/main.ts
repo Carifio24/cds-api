@@ -1,5 +1,6 @@
 import { promises } from "fs";
 import { join } from "path";
+
 import { createApp } from "./server";
 import { getDatabaseConnection } from "./database";
 

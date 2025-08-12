@@ -325,7 +325,7 @@ export async function signUpStudent(options: SignUpStudentOptions): Promise<Sign
 
     return transactionResult;
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return SignUpResult.Error;
   }
 }
@@ -377,7 +377,7 @@ export async function createClass(options: CreateClassOptions): Promise<CreateCl
     return { result: result, class: creationInfo };
   } catch (error) {
     result = (error instanceof BaseError) ? createClassResultFromError(error) : CreateClassResult.Error;
-    console.log(error);
+    logger.warn(error);
     return { result: CreateClassResult.Error };
   }
 }
@@ -470,7 +470,7 @@ export async function getStoryState(studentID: number, storyName: string): Promi
     }
   })
   .catch(error => {
-    console.log(error);
+    logger.error(error);
     return null;
   });
   return result?.story_state ?? null;
@@ -485,19 +485,19 @@ export async function updateStoryState(studentID: number, storyName: string, new
     where: query
   })
   .catch(error => {
-    console.log(error);
+    logger.error(error);
     return null;
   });
 
   const storyData = { ...query, story_state: newState };
   if (result !== null) {
     result?.update(storyData).catch(error => {
-      console.log(error);
+      logger.error(error);
       return null;
     });
   } else {
     result = await StoryState.create(storyData).catch(error => {
-      console.log(error);
+      logger.error(error);
       return null;
     });
   }
@@ -513,7 +513,7 @@ export async function getStudentStageState(studentID: number, storyName: string,
     }
   })
   .catch(error => {
-    console.log(error);
+    logger.error(error);
     return null;
   });
   return result?.state ?? null;
@@ -541,7 +541,7 @@ export async function getStageStates(query: StageStateQuery): Promise<Record<str
 
   const results = await StageState.findAll({ where })
     .catch(error => {
-      console.log(error);
+      logger.error(error);
       return null;
     });
 
@@ -568,7 +568,7 @@ export async function updateStageState(studentID: number, storyName: string, sta
     where: query
   })
   .catch(error => {
-    console.log(error);
+    logger.error(error);
     return null;
   });
 
@@ -576,12 +576,12 @@ export async function updateStageState(studentID: number, storyName: string, sta
   if (result !== null) {
     result.update(data)
     .catch(error => {
-      console.log(error);
+      logger.error(error);
       // TODO: Anything to do here?
     });
   } else {
     result = await StageState.create(data).catch(error => {
-      console.log(error);
+      logger.error(error);
       return null;
     });
   }
@@ -733,7 +733,7 @@ export async function newDummyClassForStory(storyName: string): Promise<{cls: Cl
   if (dc !== null) {
     dc.update({ class_id: cls.id })
       .catch(error => {
-        console.log(error);
+        logger.error(error);
         // TODO: Anything to do here?
       });
   } else {
@@ -814,7 +814,7 @@ export async function newDummyStudent(seed = false,
     });
     return transactionResult;
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return null;
   }
 }
@@ -891,7 +891,7 @@ export async function setStudentOption(studentID: number, option: StudentOption,
   if (options !== null) {
     options.update({ [option]: value })
       .catch(error => {
-        console.log(error);
+        logger.error(error);
         // TODO: Anything to do here?
       });
   }

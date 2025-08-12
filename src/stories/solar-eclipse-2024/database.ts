@@ -67,8 +67,14 @@ export async function getSolarEclipse2024Data(userUUID: string): Promise<SolarEc
 }
 
 export async function updateSolarEclipse2024Data(userUUID: string, update: SolarEclipse2024UpdateT): Promise<boolean> {
+  logger.verbose(`Attempting to update solar eclipse data for user ${userUUID}`);
+
+  logger.verbose("Update payload");
+  logger.verbose(JSON.stringify(update, null, 2));
+
   const data = await SolarEclipse2024Data.findOne({ where: { user_uuid: userUUID } });
   if (data === null) {
+    logger.verbose(`No solar eclipse data found for user ${userUUID}`);
     return false;
   }
   const dbUpdate: SolarEclipse2024UpdateAttributes = {};
@@ -113,6 +119,8 @@ export async function updateSolarEclipse2024Data(userUUID: string, update: Solar
   if (update.delta_forecast_info_time_ms) {
     dbUpdate.forecast_info_time_ms = data.forecast_info_time_ms + update.delta_forecast_info_time_ms;
   }
+
   const result = await data.update(dbUpdate);
+  logger.verbose(`Success updating data for user ${userUUID}: ${result !== null}`);
   return result !== null;
 }

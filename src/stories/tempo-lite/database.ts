@@ -93,7 +93,10 @@ export async function getTempoLiteData(userUUID: string): Promise<TempoLiteData 
 export async function updateTempoLiteData(userUUID: string, update: TempoLiteUpdateT): Promise<TempoLiteData | null> {
   const data = await TempoLiteData.findOne({ where: { user_uuid: userUUID } });
 
+  logger.info(`Attempting to update TEMPO Lite data for ${userUUID}`);
+
   if (data === null) {
+    logger.info(`No TEMPO Lite data existed for user ${userUUID}; creating entry now`);
     const created = await TempoLiteData.create({
       user_uuid: userUUID,
       user_selected_calendar_dates: update.user_selected_calendar_dates ?? [],
@@ -125,6 +128,7 @@ export async function updateTempoLiteData(userUUID: string, update: TempoLiteUpd
     return created;
   }
 
+  logger.info(`Updating TEMPO Lite data for user ${userUUID}`);
   const dbUpdate: TempoLiteDataUpdateAttributes = {
     last_updated: new Date(),
   };
@@ -197,6 +201,9 @@ export async function updateTempoLiteData(userUUID: string, update: TempoLiteUpd
     }
   }
 
-  const result = await data.update(dbUpdate).catch(_err => null);
+  const result = await data.update(dbUpdate).catch(error => {
+    logger.error(error);
+    return null;
+  });
   return result;
 }

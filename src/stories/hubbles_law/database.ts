@@ -32,7 +32,7 @@ export async function submitHubbleMeasurement(data: {
 
   const student = await findStudentById(data.student_id);
   if (student === null) {
-    logger.verbose("No such student!");
+    logger.verbose(`Student ${data.student_id} not found!`);
     return SubmitHubbleMeasurementResult.NoSuchStudent;
   }
 
@@ -44,11 +44,12 @@ export async function submitHubbleMeasurement(data: {
       ]
     }
   })
-  .catch((_error) => {
-    logger.verbose("Measurement not found");
+  .catch((error) => {
+    logger.error(error);
+    return null;
   });
 
-  logger.verbose(`Measurement data is ${JSON.stringify(data)}`);
+  logger.verbose(`Measurement data is ${JSON.stringify(data, null, 2)}`);
 
   if (measurement) {
     measurement.update(data, {
@@ -66,7 +67,7 @@ export async function submitHubbleMeasurement(data: {
     logger.verbose("Updated measurement");
     return SubmitHubbleMeasurementResult.MeasurementUpdated;
   } else {
-    logger.verbose("Creating new measurement");
+    logger.verbose(`Creating new measurement for student ${data.student_id}`);
     HubbleMeasurement.create(data).catch(console.log);
     return SubmitHubbleMeasurementResult.MeasurementCreated;
   }
@@ -89,8 +90,11 @@ export async function submitSampleHubbleMeasurement(data: {
   brightness?: number,
 }): Promise<SubmitHubbleMeasurementResult> {
 
+  logger.verbose(`Attempting to submit sample measurement for student ${data.student_id}, galaxy ${data.galaxy_id}`);
+
   const student = await findStudentById(data.student_id);
   if (student === null) {
+    logger.verbose(`Student ${data.student_id} not found!`);
     return SubmitHubbleMeasurementResult.NoSuchStudent;
   }
 
@@ -103,7 +107,12 @@ export async function submitSampleHubbleMeasurement(data: {
       ]
     }
   })
-  .catch(console.log);
+  .catch((error) => {
+    logger.error(error);
+    return null;
+  });
+
+  logger.verbose(`Sample measurement data is ${JSON.stringify(data, null, 2)}`);
 
   if (measurement) {
     measurement.update(data, {
@@ -115,9 +124,13 @@ export async function submitSampleHubbleMeasurement(data: {
         ]
       }
     })
-    .catch(console.log);
+    .catch((error) => {
+      logger.error("Error updating sample measurement!");
+      logger.error(error);
+    });
     return SubmitHubbleMeasurementResult.MeasurementUpdated;
   } else {
+    logger.verbose(`Creating new sample measurement for student ${data.student_id}`);
     SampleHubbleMeasurement.create(data).catch(console.log);
     return SubmitHubbleMeasurementResult.MeasurementCreated;
   }
@@ -159,6 +172,8 @@ export async function getSampleHubbleMeasurements(studentID: number): Promise<Sa
 }
 
 export async function getSampleHubbleMeasurement(studentID: number, measurementNumber: string): Promise<SampleHubbleMeasurement | null> {
+  logger.verbose(`Attempting to retrieve ${measurementNumber} sample Hubble measurement for student ${studentID}`);
+
   return SampleHubbleMeasurement.findOne({
     where: { student_id: studentID, measurement_number: measurementNumber },
     include: [{
@@ -168,7 +183,7 @@ export async function getSampleHubbleMeasurement(studentID: number, measurementN
       required: true
     }]
   }).catch(error => {
-    console.log(error);
+    logger.error(error);
     return null;
   });
 }
@@ -181,6 +196,7 @@ const EXCLUDE_MEASUREMENTS_WITH_NULL_CONDITION: WhereAttributeHash<HubbleMeasure
 };
 
 export async function getStudentsWithCompleteMeasurements(): Promise<Student[]> {
+  logger.verbose("Getting all students with complete Hubble measurements");
   return Student.findAll({
     attributes: [
       "id",
@@ -197,17 +213,20 @@ export async function getStudentsWithCompleteMeasurements(): Promise<Student[]> 
 }
 
 export async function getAllSampleHubbleMeasurements(excludeWithNull = true): Promise<SampleHubbleMeasurement[]> {
+  logger.verbose(`Getting all students with complete sample measurements; excluding with null values: ${excludeWithNull}`);
   const query = excludeWithNull ? { where: EXCLUDE_MEASUREMENTS_WITH_NULL_CONDITION } : {};
   return SampleHubbleMeasurement.findAll(query).catch(_error => []);
 }
 
 export async function getAllNthSampleHubbleMeasurements(measurementNumber: "first" | "second"): Promise<SampleHubbleMeasurement[]> {
+  logger.verbose(`Getting all ${measurementNumber} Hubble measurements`);
   return SampleHubbleMeasurement.findAll({
     where: { measurement_number: measurementNumber }
   }).catch(_error => []);
 }
 
 export async function getStudentHubbleMeasurements(studentID: number): Promise<HubbleMeasurement[] | null> {
+  logger.verbose(`Getting all Hubble measurements for student ${studentID}`);
   return HubbleMeasurement.findAll({
     where: {
       student_id: studentID
@@ -220,7 +239,7 @@ export async function getStudentHubbleMeasurements(studentID: number): Promise<H
     }]
   })
   .catch(error => {
-    console.log(error);
+    logger.error(error);
     return null;
   });
 }
@@ -230,6 +249,9 @@ async function getHubbleMeasurementsForStudentClass(studentID: number,
                                                     excludeWithNull: boolean = false,
                                                     excludeStudent: boolean = false,
 ): Promise<HubbleMeasurement[]> {
+
+  logger.verbose(`Getting Hubble measurements for student ${studentID}, class ${classID}`);
+  logger.verbose(`Excluding with null: ${excludeWithNull}, excluding this student: ${excludeStudent}`);
 
   const classIDs = await getMergedIDsForClass(classID);
 
@@ -243,6 +265,8 @@ async function getHubbleMeasurementsForStudentClass(studentID: number,
       }
     });
   }
+
+  logger.verbose(`Relevant student IDs: ${classDataStudentIDs}`);
 
   const measurementWhereConditions: WhereOptions<HubbleMeasurement> = [];
   if (excludeStudent) {
@@ -292,6 +316,10 @@ export async function getClassMeasurements(classID: number,
                                            excludeWithNull: boolean = false
 ): Promise<HubbleMeasurement[]> {
 
+  logger.verbose(`Getting class measurements for class ${classID}`);
+  logger.verbose(`Including merged classes: ${includeMergedClasses}`);
+  logger.verbose(`Excluding measurements with null values: ${excludeWithNull}`);
+
   const classWhereConditions: WhereOptions<Class> = [];
   if (includeMergedClasses) {
     const classIDs = await getMergedIDsForClass(classID);
@@ -299,11 +327,15 @@ export async function getClassMeasurements(classID: number,
   } else {
     classWhereConditions.push({ id: classID });
   }
+  
+  logger.verbose(`Class filter conditions: ${classWhereConditions}`);
 
   const measurementWhereConditions: WhereOptions<HubbleMeasurement> = [];
   if (excludeWithNull) {
     measurementWhereConditions.push(EXCLUDE_MEASUREMENTS_WITH_NULL_CONDITION);
   }
+
+  logger.verbose(`Measurement filter conditions: ${measurementWhereConditions}`);
 
   return HubbleMeasurement.findAll({
     where: measurementWhereConditions,
@@ -337,6 +369,7 @@ export async function getClassMeasurements(classID: number,
 }
 
 async function getHubbleStudentDataForClasses(classIDs: number[]): Promise<HubbleStudentData[]> {
+  logger.verbose(`Getting Hubble student data for classes ${classIDs}`);
   return HubbleStudentData.findAll({
     include: [{
       model: Student,
