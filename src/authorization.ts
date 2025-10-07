@@ -31,8 +31,9 @@ export async function getAPIKey(key: string): Promise<APIKey | null> {
 // TODO: Is there a better way to set this system up?
 export function hasPermission(key: APIKey, req: Request): boolean {
   const relativeURL = req.originalUrl;
-  const permissionsRoot = key.permissions_root;
-  const routePermission = permissionsRoot === null || relativeURL.startsWith(permissionsRoot);
+  const permissionsRoots = key.permissions_roots;
+  const routePermission = permissionsRoots === null ||
+    permissionsRoots.some((root) => relativeURL.startsWith(root));
   const methodPermission = key.allowed_methods === null || key.allowed_methods.includes(req.method);
   return routePermission && methodPermission;
 }
