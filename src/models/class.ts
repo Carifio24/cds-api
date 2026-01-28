@@ -1,7 +1,7 @@
 import { Educator } from "./educator";
 import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 
-const CLASS_STATUS_VALUES = ["seed", "real_good_data", "real_bad_data", "test_good_data", "test_bad_data"] as const;
+const CLASS_STATUS_VALUES = ["seed", "real_good_data", "real_bad_data", "test_good_data", "test_bad_data", "unknown"] as const;
 type ClassStatus = typeof CLASS_STATUS_VALUES[number];
 
 export class Class extends Model<InferAttributes<Class>, InferCreationAttributes<Class>> {

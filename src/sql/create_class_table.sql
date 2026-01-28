@@ -11,7 +11,7 @@ CREATE TABLE Classes (
     updated datetime DEFAULT NULL,
     expected_size int(11) UNSIGNED NOT NULL,
     small_class tinyint(1) GENERATED ALWAYS AS (expected_size < 15) VIRTUAL,
-    status ENUM("seed", "real_good_data", "real_bad_data", "test_good_data", "test_bad_data") DEFAULT NULL,
+    status ENUM("seed", "real_good_data", "real_bad_data", "test_good_data", "test_bad_data", "unknown") DEFAULT NULL,
  
     PRIMARY KEY(id),
     INDEX(educator_id),
