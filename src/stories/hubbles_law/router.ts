@@ -376,6 +376,12 @@ router.get(["/class-measurements/:studentID/:classID", "/stage-3-data/:studentID
   }
   const completeOnly = (req.query.complete_only as string)?.toLowerCase() === "true";
   const excludeStudent = (req.query.exclude_student as string)?.toLowerCase() === "true";
+  let hasStudentIDs = false;
+
+  if (req.query.student_ids) {
+    const studentIDsString = req.query.student_ids as string;
+    const studentIDs = studentIDsString.split(",").map(p => parseInt(p)).filter(x => !isNaN(x));
+  }
   const params = req.params;
   let studentID = parseInt(params.studentID);
   let classID = parseInt(params.classID);
