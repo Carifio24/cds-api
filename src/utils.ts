@@ -40,6 +40,9 @@ export type KeysOfType<T, U> = { [K in keyof T]: T[K] extends U ? K : never }[ke
 export type RequiredKeys<T> = Exclude<KeysOfType<T, Exclude<T[keyof T], undefined>>, undefined>
 export type ExcludeOptionalProperties<T> = Pick<T, RequiredKeys<T>>
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Constructor<T> = new (...args: any[]) => T;
+
 // Only keeps keys that aren't optional
 export type RequiredFieldsOnly<T> = {
     [K in keyof T as T[K] extends Required<T>[K] ? K : never]: T[K]
