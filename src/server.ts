@@ -138,15 +138,21 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   });
 
   /**
-   * @openapi
-   * /:
-   *   get:
-   *    description: Welcome to the CosmicDS API server!
-   *    responses:
-   *    200:
-   *      message: Returns a welcome message, with an extra bit of text if no valid API key is present in the `Authorization` header
-   *
-   */
+    * @openapi
+    * /:
+    *   get:
+    *    description: Welcome to the CosmicDS API server!
+    *    responses:
+    *      200:
+    *        description: Returns a welcome message, with an extra bit of text if no valid API key is present in the `Authorization` header
+    *        content:
+    *          application/json:
+    *            schema:
+    *             type: object
+    *             properties:
+    *               message: 
+    *                 type: string
+    */
   app.get("/", async (req, res) => {
     const key = req.get("Authorization");
     const apiKey = key ? await getAPIKey(key) : null;
@@ -158,6 +164,15 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     res.json({ message: message });
   });
 
+  /**
+    * @openapi
+    * /permission:
+    *   get:
+    *     description: Used for determining whether an API key has permission to perform a given action on a given resource
+    *     responses:
+    *       200:
+    *         permission: 
+    */
   app.get("/permission", async (req, res) => {
     const key = req.query.api_key;
     const action = req.query.action;

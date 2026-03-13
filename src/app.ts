@@ -9,7 +9,7 @@ import { v4 } from "uuid";
 
 import { apiKeyMiddleware } from "./middleware";
 import { ALLOWED_ORIGINS } from "./utils";
-import swaggerJSDoc, { OAS3Options, Options as SwaggerOptions } from "swagger-jsdoc";
+import swaggerJSDoc, { OAS3Options } from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
 export function setupApp(app: Express, db: Sequelize) {
