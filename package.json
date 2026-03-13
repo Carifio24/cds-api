@@ -43,6 +43,7 @@
     "sha3": "^2.1.4",
     "supertest": "^7.0.0",
     "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2",
@@ -51,6 +52,7 @@
   },
   "devDependencies": {
     "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "eslint": "^8.13.0",
     "eslint-plugin-vue": "^8.6.0",
     "sass": "~1.32.0",
