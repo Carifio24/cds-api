@@ -9,7 +9,7 @@ import { v4 } from "uuid";
 
 import { apiKeyMiddleware } from "./middleware";
 import { ALLOWED_ORIGINS } from "./utils";
-import swaggerJSDoc, { Options as SwaggerOptions } from "swagger-jsdoc";
+import swaggerJSDoc, { OAS3Options, Options as SwaggerOptions } from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
 export function setupApp(app: Express, db: Sequelize) {
@@ -72,13 +72,14 @@ export function setupApp(app: Express, db: Sequelize) {
   // parse requests of content-type - application/x-www-form-urlencoded
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  const swaggerOptions: SwaggerOptions = {
+  const swaggerOptions: OAS3Options = {
     apis: [
       "./dist/src/app.js",
       "./dist/src/server.js",
       "./dist/src/stories/**/main.js",
     ],
-    swaggerDefinition: {
+    definition: {
+      openapi: "3.0.0",
       info: {
         title: "CosmicDS API",
         version: "0.1.0",
@@ -86,6 +87,15 @@ export function setupApp(app: Express, db: Sequelize) {
       },
       host: "api.cosmicds.cfa.harvard.edu",
       basePath: "/",
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: "apiKey",
+            in: "header",
+            name: "Authorization",
+          }
+        }
+      }
     }
   };
   const swaggerSpec = swaggerJSDoc(swaggerOptions);
