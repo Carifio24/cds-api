@@ -94,6 +94,35 @@ export function setupApp(app: Express, db: Sequelize) {
             in: "header",
             name: "Authorization",
           }
+        },
+        schemas: {
+          EducatorCreationInfo: {
+            type: "object",
+            required: ["first_name", "last_name", "password", "email", "username"],
+            properties: {
+              first_name: { type: "string" },
+              last_name: { type: "string" },
+              password: { type: "string" },
+              email: { type: "string", format: "email" },
+              username: { type: "string" },
+              institution: { type: "string" },
+              age: { type: "number", format: "int32" },
+              gender: { type: "string" },
+            },
+          },
+          EducatorCreated: {
+            type: "object",
+            required: ["educator_info", "status", "success"],
+            properties: {
+              educator_info: {
+                schema: {
+                  "$ref": "#/components/schemas/EducatorCreationInfo",
+                }
+              },
+              status: { type: "string", enum: ["bad_request", "ok", "email_already_exists", "error"] },
+              success: { type: "boolean" },
+            },
+          }
         }
       }
     }

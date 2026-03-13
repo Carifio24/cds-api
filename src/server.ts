@@ -138,21 +138,21 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   });
 
   /**
-    * @openapi
-    * /:
-    *   get:
-    *    description: Welcome to the CosmicDS API server!
-    *    responses:
-    *      200:
-    *        description: Returns a welcome message, with an extra bit of text if no valid API key is present in the `Authorization` header
-    *        content:
-    *          application/json:
-    *            schema:
-    *             type: object
-    *             properties:
-    *               message: 
-    *                 type: string
-    */
+   * @openapi
+   * /:
+   *   get:
+   *    description: Welcome to the CosmicDS API server!
+   *    responses:
+   *      200:
+   *        description: Returns a welcome message, with an extra bit of text if no valid API key is present in the `Authorization` header
+   *        content:
+   *          application/json:
+   *            schema:
+   *             type: object
+   *             properties:
+   *               message: 
+   *                 type: string
+   */
   app.get("/", async (req, res) => {
     const key = req.get("Authorization");
     const apiKey = key ? await getAPIKey(key) : null;
@@ -165,14 +165,61 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   });
 
   /**
-    * @openapi
-    * /permission:
-    *   get:
-    *     description: Used for determining whether an API key has permission to perform a given action on a given resource
-    *     responses:
-    *       200:
-    *         permission: 
-    */
+   * @openapi
+   * /permission:
+   *   get:
+   *     description: Used for determining whether an API key has permission to perform a given action on a given resource path
+   *     parameters:
+   *       - in: query
+   *         name: api_key
+   *         schema:
+   *           type: string
+   *       - in: query
+   *         name: action 
+   *         schema:
+   *           type: string
+   *           enum:
+   *             - read
+   *             - write
+   *             - delete
+   *       - in: query
+   *         name: path 
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: The request had all of necessary query items (API key, action, resource path)
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 permission:
+   *                   type: boolean
+   *       400:
+   *         description: At least query parameter was invalid/missing
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 permission:
+   *                   type: boolean
+   *                 error:
+   *                   type: string
+   *       404:
+   *         description: The requested API key does not exist
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 permission:
+   *                   type: boolean
+   *                 error:
+   *                   type: string
+   *
+   */
   app.get("/permission", async (req, res) => {
     const key = req.query.api_key;
     const action = req.query.action;
@@ -195,7 +242,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
 
     const apiKey = await getAPIKey(maybe.right.key);
     if (apiKey === null) {
-      res.json({
+      res.status(404).json({
         permission: false,
         message: "The provided API key does not exist",
       });
@@ -211,7 +258,37 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
 
   });
 
-  // Educator sign-up
+  /**
+   *  @openapi
+   *  /educators/create:
+   *    post:
+   *      description: Create a new educator account
+   *      requestBody:
+   *        required: true
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: "#/components/schemas/EducatorCreationInfo"
+   *      responses:
+   *        201:
+   *          description: A new educator was successfully created
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/EducatorCreated"
+   *        409:
+   *          description: A user with the given email address already exists
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/EducatorCreated"
+   *        400:
+   *          description: The request body was ill-formed
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/EducatorCreated"
+   */
   app.post([
     "/educators/create",
     "/educator-sign-up", // Old
