@@ -277,7 +277,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *              schema:
    *                $ref: "#/components/schemas/EducatorCreated"
    *        409:
-   *          description: A user with the given email address already exists
+   *          description: An educator with the given email address already exists
    *          content:
    *            application/json:
    *              schema:
@@ -324,7 +324,37 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     });
   });
 
-  // Student sign-up
+  /**
+   *  @openapi
+   *  /students/create:
+   *    post:
+   *      description: Create a new student account
+   *      requestBody:
+   *        required: true
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: "#/components/schemas/StudentCreationInfo"
+   *      responses:
+   *        201:
+   *          description: A new student was successfully created
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/StudentCreated"
+   *        409:
+   *          description: A student with the given email address already exists
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/StudentCreated"
+   *        400:
+   *          description: The request body was ill-formed
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/StudentCreated"
+   */
   app.post([
     "/students/create",
     "/student-sign-up", // Old
@@ -483,6 +513,20 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
 
   /* Users (students and educators) */
 
+  /**
+   *  @openapi
+   *  /students:
+   *    get:
+   *      description: Return information about all existing students
+   *      responses:
+   *        200:
+   *          content:
+   *            application/json:
+   *              schema:
+   *                type: array
+   *                items:
+   *                  $ref: "#/components/schemas/Student"
+  */
   app.get("/students", async (_req, res) => {
     const queryResponse = await getAllStudents();
     res.json(queryResponse);

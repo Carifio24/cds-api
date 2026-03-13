@@ -12,6 +12,8 @@ import { ALLOWED_ORIGINS } from "./utils";
 import swaggerJSDoc, { OAS3Options } from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
+import { schemas } from "./openapi/schemas";
+
 export function setupApp(app: Express, db: Sequelize) {
 
   const corsOptions: CorsOptions = {
@@ -42,7 +44,6 @@ export function setupApp(app: Express, db: Sequelize) {
       };
     }
   });
-
 
   const SECRET = "ADD_REAL_SECRET";
   const SESSION_NAME = "cosmicds";
@@ -95,35 +96,7 @@ export function setupApp(app: Express, db: Sequelize) {
             name: "Authorization",
           }
         },
-        schemas: {
-          EducatorCreationInfo: {
-            type: "object",
-            required: ["first_name", "last_name", "password", "email", "username"],
-            properties: {
-              first_name: { type: "string" },
-              last_name: { type: "string" },
-              password: { type: "string" },
-              email: { type: "string", format: "email" },
-              username: { type: "string" },
-              institution: { type: "string" },
-              age: { type: "number", format: "int32" },
-              gender: { type: "string" },
-            },
-          },
-          EducatorCreated: {
-            type: "object",
-            required: ["educator_info", "status", "success"],
-            properties: {
-              educator_info: {
-                schema: {
-                  "$ref": "#/components/schemas/EducatorCreationInfo",
-                }
-              },
-              status: { type: "string", enum: ["bad_request", "ok", "email_already_exists", "error"] },
-              success: { type: "boolean" },
-            },
-          }
-        }
+        schemas: schemas(),
       }
     }
   };
