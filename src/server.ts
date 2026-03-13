@@ -137,7 +137,16 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     next();
   });
 
-  // simple route
+  /**
+   * @openapi
+   * /:
+   *   get:
+   *    description: Welcome to the CosmicDS API server!
+   *    responses:
+   *    200:
+   *      message: Returns a welcome message, with an extra bit of text if no valid API key is present in the `Authorization` header
+   *
+   */
   app.get("/", async (req, res) => {
     const key = req.get("Authorization");
     const apiKey = key ? await getAPIKey(key) : null;

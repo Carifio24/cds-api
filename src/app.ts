@@ -10,6 +10,7 @@ import { v4 } from "uuid";
 import { apiKeyMiddleware } from "./middleware";
 import { ALLOWED_ORIGINS } from "./utils";
 import swaggerJSDoc, { Options as SwaggerOptions } from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 
 export function setupApp(app: Express, db: Sequelize) {
 
@@ -73,7 +74,8 @@ export function setupApp(app: Express, db: Sequelize) {
 
   const swaggerOptions: SwaggerOptions = {
     apis: [
-      "./dist/src/main.js",
+      "./dist/src/app.js",
+      "./dist/src/server.js",
       "./dist/src/stories/**/main.js",
     ],
     swaggerDefinition: {
@@ -82,7 +84,7 @@ export function setupApp(app: Express, db: Sequelize) {
         version: "0.1.0",
         description: "An API server for interacting with the CosmicDS database.",
       },
-      host: "https://api.cosmicds.cfa.harvard.edu",
+      host: "api.cosmicds.cfa.harvard.edu",
       basePath: "/",
     }
   };
@@ -92,6 +94,9 @@ export function setupApp(app: Express, db: Sequelize) {
     res.setHeader("Content-Type", "application/json");
     res.send(swaggerSpec);
   });
+
+  app.use("/docs", swaggerUi.serve);
+  app.get("/docs", swaggerUi.setup(swaggerSpec));
 
   app.use(function(req, res, next) {
 

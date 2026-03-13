@@ -6,7 +6,11 @@ import { ALLOWED_ORIGINS } from "./utils";
 
 export async function apiKeyMiddleware(req: Request, res: ExpressResponse, next: NextFunction): Promise<void> {
 
-  if (["/", "/permission", "/docs.json"].includes(req.path)) {
+  const noKeyNeeded = ["/", "/permission", "/docs.json"].includes(req.path)
+    ||
+  req.path.startsWith("/docs");
+
+  if (noKeyNeeded) {
     next();
     return;
   }
