@@ -1,102 +1,59 @@
 import { Router } from "express";
-import { Model } from "sequelize";
+import { DataTypes, Model, ModelStatic } from "sequelize";
 import { ExperienceRating } from "./models/user_experience";
 import { getUserExperienceForStory, setExperienceInfoForStory } from "./database";
 import { logger } from "./logger";
-import { Constructor } from "./utils";
+import { OptionalInt, OptionalString } from "./utils";
 
 import * as S from "@effect/schema/Schema";
 import * as Either from "effect/Either";
 
-export interface TrackingDataOptions<A,I, M extends Model> {
-  updateType: S.Schema<A,I>;
-  modelType: Constructor<M>;
-}
 
-function createEntryType<A,I>(updateType: S.Schema<A,I>) {
-  return S.extend(updateType, S.struct({ user_uuid: S.string }));
-}
+const TYPES_MAP = new Map();
+TYPES_MAP.set(DataTypes.INTEGER.UNSIGNED, OptionalInt);
+TYPES_MAP.set(DataTypes.INTEGER, OptionalInt);
+TYPES_MAP.set(DataTypes.STRING, OptionalString);
 
-export function addTrackingData<A,I,M extends Model>(
+
+export function addTrackingData<M extends Model & { user_uuid: string }>(
   router: Router,
   storyName: string,
-  options: TrackingDataOptions<A,I,M>,
+  modelType: ModelStatic<M>,
 ) {
 
-  const entryType = createEntryType(options.updateType);
+  type StructFieldType = S.StructFields[keyof S.StructFields];
+
+  const attributes = modelType.getAttributes();
+  const updateFields: Partial<Record<keyof M, StructFieldType>> = {};
+  for (const entry in Object.entries(attributes)) {
+    const [name, info] = entry;
+    const key = name as keyof M;
+    updateFields[key] = TYPES_MAP.get(info);
+  }
+
+  const Update = S.struct(updateFields as Record<keyof M, StructFieldType>);
+  const Entry = S.extend(Update, S.struct({ user_uuid: S.string }));
 
   router.put("/data", async (req, res) => {
     const data = req.body;
-    const maybe = S.decodeUnknownEither(entryType)(data);
+    const maybe = S.decodeUnknownEither(Entry)(data);
 
     if (Either.isLeft(maybe)) {
       res.status(400);
       res.json({ error: "Malformed data submission" });
       return;
     }
-    
-    const response = await submitSeasonsData(maybe.right);
+
+    const response = await modelType.upsert(maybe.right).then(pair => pair[0]);
     if (response === null) {
       res.status(400);
-      res.json({ error: "Error creating Seasons entry" });
+      res.json({ error: `Error creating ${storyName} entry` });
       return;
     }
 
     res.json({ response });
   });
 
-  router.patch("/data/:uuid", async (req, res) => {
-    const data = req.body;
-  
-    const maybe = S.decodeUnknownEither(options.updateType)(data);
-    if (Either.isLeft(maybe)) {
-      console.log(maybe.left.error);
-      res.status(400).json({ error: "Malformed update submission" });
-      return;
-    }
-  
-    const uuid = req.params.uuid as string;
-    const current = await getSeasonsData(uuid);
-    if (current === null) {
-      res.status(404).json({ error: "Specified user data does not exist" });
-      return;
-    }
-  
-    const response = await updateSeasonsData(uuid, maybe.right);
-    if (response === null) {
-      res.status(500).json({ error: "Error updating user data" });
-      return;
-    }
-    res.json({ response });
-  });
-  
-  router.post("/visit", async (req, res) => {
-    const schema = S.struct({
-      info: S.object,
-    });
-    const body = req.body;
-    const maybe = S.decodeUnknownEither(schema)(body);
-    if (Either.isLeft(maybe)) {
-      res.status(400).json({
-        success: false,
-        error: "Invalid request body; should have form { info: { venue: <string> } }",
-      });
-      return;
-    }
-  
-    const data = maybe.right;
-    const storyVisitInfo = await addVisitForStory("seasons", data.info);
-    if (storyVisitInfo !== null) {
-      res.json({
-        success: true,
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        error: "Error creating story visit info entry",
-      });
-    }
-  }
 }
 
 export function addUserExperience(router: Router, storyName: string) {
