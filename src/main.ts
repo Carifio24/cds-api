@@ -4,7 +4,6 @@ import { createApp } from "./server";
 import { getDatabaseConnection } from "./database";
 import { storyRouter } from "./story_router";
 
-
 const STORIES_DIR = join(__dirname, "stories");
 const MAIN_FILE = "main.js";
 
