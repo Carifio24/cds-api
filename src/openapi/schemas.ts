@@ -1,5 +1,5 @@
 import type { OAS3Definition } from "swagger-jsdoc";
-import { Educator, Student } from "../models";
+import { Class, Educator, Student } from "../models";
 import { modelToSchema } from "./utils";
 
 type Schemas = OAS3Definition["schemas"];
@@ -8,6 +8,13 @@ export function schemas(): Schemas {
   return {
     Educator: modelToSchema(Educator),
     Student: modelToSchema(Student),
+    Class: modelToSchema(Class),
+    User: {
+      oneOf: [
+        "#/components/schemas/Educator",
+        "#/components/schemas/Student"
+      ],
+    },
     EducatorCreationInfo: {
       type: "object",
       required: ["first_name", "last_name", "password", "email", "username"],
