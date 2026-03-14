@@ -10,7 +10,7 @@ import { v4 } from "uuid";
 import { apiKeyMiddleware } from "./middleware";
 import { ALLOWED_ORIGINS } from "./utils";
 import swaggerJSDoc, { OAS3Options } from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
+import swaggerUi, { SwaggerUiOptions } from "swagger-ui-express";
 
 import { schemas } from "./openapi/schemas";
 
@@ -80,7 +80,7 @@ export function setupApp(app: Express, db: Sequelize) {
       "./dist/src/stories/**/main.js",
     ],
     definition: {
-      openapi: "3.0.0",
+      openapi: "3.1.0",
       info: {
         title: "CosmicDS API",
         version: "0.1.0",
@@ -107,8 +107,12 @@ export function setupApp(app: Express, db: Sequelize) {
     res.send(swaggerSpec);
   });
 
+  const swaggerUIOptions: SwaggerUiOptions = {
+    customSiteTitle: "CosmicDS Database API",
+  };
+
   app.use("/docs", swaggerUi.serve);
-  app.get("/docs", swaggerUi.setup(swaggerSpec));
+  app.get("/docs", swaggerUi.setup(swaggerSpec, swaggerUIOptions));
 
   app.use(function(req, res, next) {
 
