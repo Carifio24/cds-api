@@ -532,17 +532,70 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     res.json(queryResponse);
   });
 
+  /**
+   *  @openapi
+   *  /educators:
+   *    get:
+   *      description: Return information about all existing educators
+   *      responses:
+   *        200:
+   *          content:
+   *            application/json:
+   *              schema:
+   *                type: array
+   *                items:
+   *                  $ref: "#/components/schemas/Educator"
+  */
   app.get("/educators", async (_req, res) => {
     const queryResponse = await getAllEducators();
     res.json(queryResponse);
   });
 
+  /**
+   *  @openapi
+   *  /users:
+   *    get:
+   *      description: Return information about all existing students and educators
+   *      responses:
+   *        200:
+   *          content:
+   *            application/json:
+   *              schema:
+   *                type: array
+   *                items:
+   *                  $ref: "#/components/schemas/User"
+  */
   app.get("/users", async (_req, res) => {
     const students = await getAllStudents();
     const educators = await getAllEducators();
     res.json({ students, educators });
   });
 
+  /*
+  * @openapi
+  * /students/{identifier}:
+  *   get:
+  *     description: Return information about the student with the given identifier (ID (#) or username (string))
+  *     parameters:
+  *       - name: identifier
+  *         in: path
+  *         required: true
+  *         schema:
+  *           type: string
+  *     responses:
+  *       200:
+  *         description: A student with the given identifier exists
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: "#/components/schemas/Student"
+  *       404:
+  *         description: A student with the given identifier does not exist
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: null
+  */
   app.get([
     "/students/:identifier",
     "/student/:identifier", // Backwards compatibility
@@ -556,6 +609,45 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     });
   });
 
+  /*
+  * @openapi
+  * /students/{identifier}/classes:
+  *   get:
+  *     description: Return information about each class that the specified student is in
+  *     parameters:
+  *       - name: identifier
+  *         in: path
+  *         required: true
+  *         schema:
+  *           type: string
+  *     responses:
+  *       200:
+  *         description: A student with the given identifier exists
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: object
+  *               properties:
+  *                 student_id:
+  *                   type: number
+  *                   format: int32
+  *                 classes:
+  *                   type: array
+  *                   items:
+  *                     $ref: "#/components/schemas/Class"
+  *       404:
+  *         description: A student with the given identifier does not exist
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: object
+  *               properties:
+  *                 student_id:
+  *                   type: number
+  *                   format: null 
+  *                 classes:
+  *                   type: array
+  */
   app.get("/students/:identifier/classes", async (req, res) => {
     const student = await findStudentByIdOrUsername(req.params.identifier);
     if (student === null) {
