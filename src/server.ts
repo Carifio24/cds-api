@@ -571,7 +571,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     res.json({ students, educators });
   });
 
-  /*
+  /**
   * @openapi
   * /students/{identifier}:
   *   get:
@@ -609,7 +609,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     });
   });
 
-  /*
+  /**
   * @openapi
   * /students/{identifier}/classes:
   *   get:
@@ -666,7 +666,53 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     });
 
   });
-
+ 
+  /**
+   *  @openapi
+   *  /students/{identifier}/classes/{classID}:
+   *    delete:
+   *      description: Remove the given student from the given class if they're a member
+   *      parameters:
+   *        - name: identifier
+   *          in: path
+   *          required: true
+   *          oneOf:
+   *          - type: string
+   *          - type: integer
+   *            format: int32
+   *          schema:
+   *            type: string
+   *        - name: classID
+   *          in: path
+   *          required: true
+   *          schema:
+   *            type: number
+   *            format: int32
+   *      responses:
+   *        204:
+   *          description: The student was a member of the class, and has now been removed
+   *        404:
+   *          description: Either the student or class does not exist, or the student was not in the class
+   *          content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  message:
+   *                    description: A message detailing why the attempt failed
+   *                    type: string
+   *        500:
+   *          description: An error occurred while trying to remove the student from the class
+   *          content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    description: A message detailing why the attempt failed
+   *                    type: string
+   *          
+  */
   app.delete("/students/:identifier/classes/:classID", async (req, res) => {
 
     const identifier = req.params.identifier;
@@ -675,7 +721,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
       res.statusCode = 404;
       res.json({
         message: `No student found for identifier ${identifier}`,
-        success: false,
       });
       return;
     }
@@ -686,7 +731,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
       res.statusCode = 404;
       res.json({
         message: `No class found with ID ${classID}`,
-        success: false,
       });
       return;
     }
@@ -701,7 +745,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     if (join === null) {
       res.statusCode = 404;
       res.json({
-        success: false,
         message: `Student with identifier ${identifier} not found in class ${classID}`,
       });
       return;
@@ -722,12 +765,68 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
 
   });
 
+  /**
+   *   @openapi
+   *   /students/ignore/{identifier}/{storyName}:
+   *     put:
+   *       description: Set whether a student is ignored for the data aggregation of a given story
+   *       parameters:
+   *         - name: identifier
+   *           description: Either the student's username or ID
+   *           in: path
+   *           required: true
+   *           oneOf:
+   *             - type: string
+   *             - type: integer
+   *               format: int32
+   *         - name: storyName
+   *           in: path
+   *           required: true
+   *           schema:
+   *             type: string
+   *       requestBody:
+   *         required: true
+   *         content:
+   *           application.json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 ignore: 
+   *                   description: Whether or not the student should be ignored
+   *                   type: boolean
+   *       responses:
+   *         200:
+   *           description: The student's ignore state now matches the request
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   error:
+   *                     type: string
+   *         404:
+   *           description: Either the student or story does not exist
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   error:
+   *                     type: string
+   *         400:
+   *           description: The request body had the wrong form
+   *           content:
+   *             application/json:
+   *               type: object
+   *               properties:
+   *                 error:
+   *                   type: string
+   */
   app.put("/students/ignore/:identifier/:storyName", async (req, res) => {
     const identifier = req.params.identifier;
     const student = await findStudentByIdOrUsername(identifier);
     if (student === null) {
       res.status(404).json({
-        success: false,
         error: `No student found for identifier ${identifier}`,
       });
       return;
@@ -737,7 +836,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     const story = await getStory(storyName);
     if (story === null) {
       res.status(404).json({
-        success: false,
         error: `No story found with name ${storyName}`,
       });
       return;
@@ -749,7 +847,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     const maybe = S.decodeUnknownEither(schema)(req.body);
     if (Either.isLeft(maybe)) {
       res.status(400).json({
-        success: false,
         error: "Invalid request body; should have form { ignore: <boolean> }",
       });
       return;
@@ -760,7 +857,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     let message: string;
     
     if (ignore) {
-
       const [ignored, created] = await IgnoreStudent.upsert({
         student_id: student.id,
         story_name: story.name,
@@ -800,9 +896,34 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
       }
     }
 
-    res.json({ success, message });
+    res.json({ message });
   });
 
+  /**
+  * @openapi
+  * /educator/{identifier}:
+  *   get:
+  *     description: Return information about the educator with the given identifier (ID (#) or username (string))
+  *     parameters:
+  *       - name: identifier
+  *         in: path
+  *         required: true
+  *         schema:
+  *           type: string
+  *     responses:
+  *       200:
+  *         description: An educator with the given identifier exists
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: "#/components/schemas/Educator"
+  *       404:
+  *         description: An educator with the given identifier does not exist
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: null
+  */
   app.get("/educators/:identifier", async (req, res) => {
     const params = req.params;
     const id = Number(params.identifier);
@@ -821,6 +942,46 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     });
   });
 
+  /**
+   *  @openapi
+   *  /classes/join:
+   *    post:
+   *      description: Add a student to a class
+   *      requestBody:
+   *        required: true
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                username:
+   *                  description: The student's username
+   *                  type: string
+   *                class_code:
+   *                  description: The code for the class
+   *                  type: string
+   *      responses:
+   *        200:
+   *          description: The student was successfully added to the class, or was already a member
+   *          content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  message:
+   *                    description: A message detailing whether the student was already in the class or was newly added
+   *                    type: string
+   *        404:
+   *          description: At least one of the student username or class code were invalid
+   *          content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  message:
+   *                    description: A message detailing which field(s) were invalid
+   *                    type: string
+   */
   app.post("/classes/join", async (req, res) => {
     const username = req.body.username as string;
     const classCode = req.body.class_code as string;
@@ -841,7 +1002,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
       message += invalid.join(", ");
       res.statusCode = 404;
       res.json({
-        success: false,
         message: message
       });
       return;
@@ -862,7 +1022,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
       message = "Student added to class successfully";
     }
 
-    res.json({ success, message });
+    res.json({ message });
   });
 
   /* Classes */
