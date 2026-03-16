@@ -11,6 +11,7 @@ import { apiKeyMiddleware } from "./middleware";
 import { ALLOWED_ORIGINS } from "./utils";
 import swaggerJSDoc, { OAS3Options } from "swagger-jsdoc";
 import swaggerUi, { SwaggerUiOptions } from "swagger-ui-express";
+import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 
 import { schemas } from "./openapi/schemas";
 
@@ -110,8 +111,11 @@ export function setupApp(app: Express, db: Sequelize) {
     res.send(swaggerSpec);
   });
 
+  const theme = new SwaggerTheme();
   const swaggerUIOptions: SwaggerUiOptions = {
+    explorer: false,
     customSiteTitle: "CosmicDS Database API",
+    customCss: theme.getBuffer(SwaggerThemeNameEnum.GRUVBOX),
   };
 
   app.use("/docs", swaggerUi.serve);
