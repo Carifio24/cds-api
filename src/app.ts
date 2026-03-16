@@ -87,6 +87,20 @@ export function setupApp(app: Express, db: Sequelize) {
         version: "0.1.0",
         description: "An API server for interacting with the CosmicDS database.",
       },
+      tags: [
+        {
+          name: "students",
+          description: "Operations relating to student management",
+        },
+        {
+          name: "educators",
+          description: "Operations relating to educator management",
+        },
+        {
+          name: "classes",
+          description: "Operations relating to class management",
+        }
+      ],
       host: "api.cosmicds.cfa.harvard.edu",
       basePath: "/",
       components: {

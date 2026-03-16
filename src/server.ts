@@ -262,6 +262,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *  @openapi
    *  /educators/create:
    *    post:
+   *      tags:
+   *        - educators
    *      description: Create a new educator account
    *      requestBody:
    *        required: true
@@ -334,6 +336,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *  @openapi
    *  /students/create:
    *    post:
+   *      tags:
+   *        - students
    *      description: Create a new student account
    *      requestBody:
    *        required: true
@@ -529,6 +533,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *  @openapi
    *  /students:
    *    get:
+   *      tags:
+   *        - students
    *      description: Return information about all existing students
    *      responses:
    *        200:
@@ -548,6 +554,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *  @openapi
    *  /educators:
    *    get:
+   *      tags:
+   *        - educators
    *      description: Return information about all existing educators
    *      responses:
    *        200:
@@ -567,6 +575,9 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *  @openapi
    *  /users:
    *    get:
+   *      tags:
+   *        - educators
+   *        - students
    *      description: Return information about all existing students and educators
    *      responses:
    *        200:
@@ -587,13 +598,17 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   * @openapi
   * /students/{identifier}:
   *   get:
+  *     tags:
+  *       - students
   *     description: Return information about the student with the given identifier (ID (#) or username (string))
   *     parameters:
   *       - name: identifier
   *         in: path
   *         required: true
-  *         schema:
-  *           type: string
+  *         oneOf:
+  *           - type: string
+  *           - type: integer
+  *             format: int32
   *     responses:
   *       200:
   *         description: A student with the given identifier exists
@@ -632,6 +647,9 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   * @openapi
   * /students/{identifier}/classes:
   *   get:
+  *     tags:
+  *       - students
+  *       - classes
   *     description: Return information about each class that the specified student is in
   *     parameters:
   *       - name: identifier
@@ -690,6 +708,9 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *  @openapi
    *  /students/{identifier}/classes/{classID}:
    *    delete:
+   *      tags:
+   *        - students
+   *        - classes
    *      description: Remove the given student from the given class if they're a member
    *      parameters:
    *        - name: identifier
@@ -730,7 +751,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *                  error:
    *                    description: A message detailing why the attempt failed
    *                    type: string
-   *          
   */
   app.delete("/students/:identifier/classes/:classID", async (req, res) => {
 
@@ -762,22 +782,17 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     });
 
     if (join === null) {
-      res.statusCode = 404;
-      res.json({
+      res.status(404).json({
         message: `Student with identifier ${identifier} not found in class ${classID}`,
       });
       return;
     }
 
     join.destroy()
-      .then(() => {
-        res.statusCode = 204;
-        res.end();
-      })
+      .then(() => res.status(204).end())
       .catch(error => {
         console.log(error);
-        res.statusCode = 500;
-        res.json({
+        res.status(500).json({
           error: "Operation failed. There was an internal server error while removing the student from the class."
         });
       });
@@ -788,6 +803,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *   @openapi
    *   /students/ignore/{identifier}/{storyName}:
    *     put:
+   *       tags:
+   *         - students
    *       description: Set whether a student is ignored for the data aggregation of a given story
    *       parameters:
    *         - name: identifier
@@ -920,15 +937,19 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
 
   /**
   * @openapi
-  * /educator/{identifier}:
+  * /educators/{identifier}:
   *   get:
+  *     tags:
+  *       - educators
   *     description: Return information about the educator with the given identifier (ID (#) or username (string))
   *     parameters:
   *       - name: identifier
   *         in: path
   *         required: true
-  *         schema:
-  *           type: string
+  *         oneOf:
+  *           - type: string
+  *           - type: integer
+  *             format: int32
   *     responses:
   *       200:
   *         description: An educator with the given identifier exists
@@ -965,6 +986,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *  @openapi
    *  /classes/join:
    *    post:
+   *      tags:
+   *        - classes
    *      description: Add a student to a class
    *      requestBody:
    *        required: true
@@ -1050,6 +1073,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *  @openapi
    *  /classes/create:
    *    post:
+   *      tags:
+   *        - classes
    *      description: Create a new class
    *      requestBody:
    *        required: true
@@ -1109,6 +1134,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   * @openapi
   * /classes/{identifier}:
   *   get:
+  *     tags:
+  *       - classes
   *     description: Return information about the class with the given identifier (ID (#) or code (string))
   *     parameters:
   *       - name: identifier
@@ -1151,6 +1178,53 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     });
   });
 
+  /**
+   *  @openapi
+   *  /classes/{identifier}:
+   *    delete:
+   *      tags:
+   *        - classes
+   *      description: Delete the class specified by the given identifier
+   *      parameters:
+   *        - name: identifier
+   *          in: path
+   *          required: true
+   *          oneOf:
+   *            - type: string
+   *            - type: integer
+   *              format: int32
+   *          schema:
+   *            type: string
+   *        - name: classID
+   *          in: path
+   *          required: true
+   *          schema:
+   *            type: number
+   *            format: int32
+   *      responses:
+   *        204:
+   *          description: The class has been deleted
+   *        404:
+   *          description: No class exists with the given identifier
+   *          content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    description: An error message
+   *                    type: string
+   *        500:
+   *          description: An error occurred while trying to delete the class
+   *          content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    description: An error message
+   *                    type: string
+  */
   app.delete("/classes/:identifier", async (req, res) => {
     const params = req.params;
     const id = Number(params.identifier);
@@ -1166,30 +1240,19 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     }
     if (cls === null) {
       res.status(404).json({
-        success: false,
         error: `Could not find class with ${identifier} ${params.identifier}`,
       });
       return;
     }
-    const success = await cls.destroy()
-      .then(() => true)
+
+    cls.destroy()
+      .then(() => res.status(204).end())
       .catch(error => {
         console.log(error);
-        return false;
+        res.status(500).json({
+          error: `Server error deleting class with ${identifier} ${params.identifier}`,
+        });
       });
-
-    if (!success) {
-      res.status(500).json({
-        success: false,
-        error: `Server error deleting class with ${identifier} ${params.identifier}`,
-      });
-      return;
-    }
-
-    res.json({
-      success: true,
-      message: "Class deleted",
-    });
   });
 
   app.get("/classes/size/:classID", async (req, res) => {
