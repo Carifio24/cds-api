@@ -97,7 +97,10 @@ export function setupApp(app: Express, db: Sequelize) {
           }
         },
         schemas: schemas(),
-      }
+      },
+      security: [
+        { apiKey: [] },
+      ]
     }
   };
   const swaggerSpec = swaggerJSDoc(swaggerOptions);
