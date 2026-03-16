@@ -43,6 +43,7 @@
     "sha3": "^2.1.4",
     "supertest": "^7.0.0",
     "swagger-jsdoc": "^6.2.8",
+    "swagger-themes": "^1.4.3",
     "swagger-ui-express": "^5.0.1",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
