@@ -288,6 +288,12 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *            application/json:
    *              schema:
    *                $ref: "#/components/schemas/EducatorCreated"
+   *        500:
+   *          description: An error occurred while creating the educator
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/EducatorCreated"
    */
   app.post([
     "/educators/create",
@@ -350,6 +356,12 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *                $ref: "#/components/schemas/StudentCreated"
    *        400:
    *          description: The request body was ill-formed
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/StudentCreated"
+   *        500:
+   *          description: An error occurred while creating the student 
    *          content:
    *            application/json:
    *              schema:
@@ -588,13 +600,20 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   *         content:
   *           application/json:
   *             schema:
-  *               type: "#/components/schemas/Student"
+  *               type: object
+  *               properties:
+  *                 student:
+  *                   schema:
+  *                     $ref: "#/components/schemas/Student"
   *       404:
   *         description: A student with the given identifier does not exist
   *         content:
   *           application/json:
   *             schema:
-  *               type: null
+  *               type: "object"
+  *               properties:
+  *               student:
+  *                 type: null
   */
   app.get([
     "/students/:identifier",
@@ -1026,6 +1045,44 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   });
 
   /* Classes */
+
+  /**
+   *  @openapi
+   *  /classes/create:
+   *    post:
+   *      description: Create a new class
+   *      requestBody:
+   *        required: true
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: "#/components/schemas/ClassCreationInfo"
+   *      responses:
+   *        201:
+   *          description: The new class was successfully created
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/ClassCreated"
+   *        409:
+   *          description: A student with the given email address already exists
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/StudentCreated"
+   *        400:
+   *          description: The request body was ill-formed
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/StudentCreated"
+   *        500:
+   *          description: An error occurred while creating the student 
+   *          content:
+   *            application/json:
+   *              schema:
+   *                $ref: "#/components/schemas/StudentCreated"
+   */
   app.post([
     "/classes/create",
     "/create-class",
@@ -1039,15 +1096,40 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
       response = {
         result: CreateClassResult.BadRequest,
       };
-      res.status(400);
     }
-    res.json({
+    const statusCode = CreateClassResult.statusCode(response.result);
+    res.status(statusCode).json({
       class_info: response.class,
       status: response.result,
       success: CreateClassResult.success(response.result)
     });
   });
 
+  /**
+  * @openapi
+  * /classes/{identifier}:
+  *   get:
+  *     description: Return information about the class with the given identifier (ID (#) or code (string))
+  *     parameters:
+  *       - name: identifier
+  *         in: path
+  *         required: true
+  *         schema:
+  *           type: string
+  *     responses:
+  *       200:
+  *         description: A class with the given identifier exists
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: "#/components/schemas/Class"
+  *       404:
+  *         description: A class with the given identifier does not exist
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: null
+  */
   app.get("/classes/:identifier", async (req, res) => {
     const params = req.params;
     const id = Number(params.identifier);

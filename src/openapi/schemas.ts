@@ -68,5 +68,29 @@ export function schemas(): Schemas {
         success: { type: "boolean" },
       },
     },
+    ClassCreationInfo: {
+      type: "object",
+      required: ["educator_id", "name", "expected_size"],
+      properties: {
+        educator_id: { type: "number", format: "int32" },
+        name: { type: "string" },
+        expected_size: { type: "number", format: "int32" },
+        asynchronous: { type: "boolean" },
+        story_name: { type: "string" },
+      },
+    },
+    ClassCreated: {
+      type: "object",
+      required: ["status", "success"],
+      properties: {
+        class_info: {
+          schema: {
+            "$ref": "#/components/schemas/ClassCreationInfo",
+          },
+          status: { type: "string", enum: ["bad_request", "ok", "already_exists", "error"] },
+          success: { type: "boolean" },
+        }
+      }
+    }
   };
 }

@@ -14,12 +14,13 @@ export enum CreateClassResult {
 export namespace CreateClassResult {
   export function statusCode(result: CreateClassResult): number {
     switch (result) {
-      case CreateClassResult.BadRequest:
-        return 400;
       case CreateClassResult.Ok:
         return 201;
-      default:
-        return 200;
+      case CreateClassResult.AlreadyExists:
+        return 409;
+      case CreateClassResult.BadRequest:
+      case CreateClassResult.Error:
+        return 400;
     }
   }
 
@@ -69,8 +70,9 @@ export namespace SignUpResult {
       case SignUpResult.EmailExists:
         return 409;
       case SignUpResult.BadRequest:
-      case SignUpResult.Error:
         return 400;
+      case SignUpResult.Error:
+        return 500;
     }
   }
 
