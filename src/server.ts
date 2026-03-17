@@ -608,7 +608,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   *         oneOf:
   *           - type: string
   *           - type: integer
-  *             format: int32
   *     responses:
   *       200:
   *         description: A student with the given identifier exists
@@ -666,8 +665,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   *               type: object
   *               properties:
   *                 student_id:
-  *                   type: number
-  *                   format: int32
+  *                   type: integer
   *                 classes:
   *                   type: array
   *                   items:
@@ -719,15 +717,13 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *          oneOf:
    *          - type: string
    *          - type: integer
-   *            format: int32
    *          schema:
    *            type: string
    *        - name: classID
    *          in: path
    *          required: true
    *          schema:
-   *            type: number
-   *            format: int32
+   *            type: integer
    *      responses:
    *        204:
    *          description: The student was a member of the class, and has now been removed
@@ -814,7 +810,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *           oneOf:
    *             - type: string
    *             - type: integer
-   *               format: int32
    *         - name: storyName
    *           in: path
    *           required: true
@@ -949,7 +944,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   *         oneOf:
   *           - type: string
   *           - type: integer
-  *             format: int32
   *     responses:
   *       200:
   *         description: An educator with the given identifier exists
@@ -1192,15 +1186,13 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *          oneOf:
    *            - type: string
    *            - type: integer
-   *              format: int32
    *          schema:
    *            type: string
    *        - name: classID
    *          in: path
    *          required: true
    *          schema:
-   *            type: number
-   *            format: int32
+   *            type: integer
    *      responses:
    *        204:
    *          description: The class has been deleted
@@ -1255,6 +1247,39 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
       });
   });
 
+  /*
+    @openapi
+    /classes/size/{classID}:
+      get:
+        tags:
+          - classes
+        description: Retrieve how many students are in a given class
+        parameters:
+          - name: classID
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          200:
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    class_id:
+                      type: integer 
+                    size:
+                      type: integer
+          404:
+            description: No class exists with the given ID
+            content:
+              application/json:
+                type: object
+                properties:
+                  error:
+                    type: string
+   */
   app.get("/classes/size/:classID", async (req, res) => {
     const classID = Number(req.params.classID);
     const cls = await findClassById(classID);

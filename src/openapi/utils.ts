@@ -22,12 +22,12 @@ function typeInfoForAttribute<M extends Model>(attribute: ModelAttributeColumnOp
 
   const intTypes = [DataTypes.INTEGER, DataTypes.INTEGER.UNSIGNED].map(t => t.key);
   if (intTypes.includes(type)) {
-    return { type: "number", format: "int32" };
+    return { type: "integer", format: "int32" };
   }
 
   const bigIntTypes = [DataTypes.BIGINT, DataTypes.BIGINT.UNSIGNED].map(t => t.key);
   if (bigIntTypes.includes(type)) {
-    return { type: "number", format: "int64" };
+    return { type: "integer", format: "int64" };
   }
 
   if (type == DataTypes.BOOLEAN.key) {
