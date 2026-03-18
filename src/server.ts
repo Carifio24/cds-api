@@ -1471,13 +1471,13 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *                type: object
    *                properties:
    *                  class_id:
-   *                   type: integer 
-   *                 class_code:
-   *                   type: string
-   *                 story_name:
-   *                   type: string
-   *                 active:
-   *                   type: boolean
+   *                    type: integer 
+   *                  class_code:
+   *                    type: string
+   *                  story_name:
+   *                    type: string
+   *                  active:
+   *                    type: boolean
    *        404:
    *          description: Either the class or story does not exist, or the class is not signed up for the given story
    *          content:
@@ -1485,7 +1485,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *              schema:
    *                $ref: "#/components/schemas/Error"
    *        400:
-   *          description: The requesy body was not properly formatted
+   *          description: The request body was not properly formatted
    *          content:
    *            application/json:
    *              schema:
