@@ -959,7 +959,6 @@ export async function findQuestion(tag: string, version?: number): Promise<Quest
 }
 
 export const QuestionInfoSchema = S.struct({
-  tag: S.string,
   text: S.string,
   shorthand: S.string,
   story_name: S.string,
@@ -971,9 +970,9 @@ export const QuestionInfoSchema = S.struct({
 
 export type QuestionInfo = S.Schema.To<typeof QuestionInfoSchema>;
 
-export async function addQuestion(info: QuestionInfo): Promise<Question | null> {
+export async function addQuestion(info: QuestionInfo & { tag: string }): Promise<Question | null> {
 
-  const infoToUse: Mutable<QuestionInfo> = { ...info };
+  const infoToUse: Mutable<typeof info> = { ...info };
 
   if (!infoToUse.version) {
     const currentVersion = await currentVersionForQuestion(infoToUse.tag);

@@ -103,7 +103,11 @@ export function setupApp(app: Express, db: Sequelize) {
         {
           name: "stories",
           description: "Operations related to managing data stories",
-        }
+        },
+        {
+          name: "questions",
+          description: "Operations related to managing questions",
+        },
       ],
       host: "api.cosmicds.cfa.harvard.edu",
       basePath: "/",

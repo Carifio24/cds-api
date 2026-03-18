@@ -1,6 +1,7 @@
 import type { OAS3Definition } from "swagger-jsdoc";
-import { Class, Educator, Stage, StageState, Student } from "../models";
+import { Class, Educator, Stage, StageState, StoryState, Student } from "../models";
 import { modelToSchema } from "./utils";
+import { Question } from "../models/question";
 
 type Schemas = OAS3Definition["schemas"];
 
@@ -11,6 +12,8 @@ export function schemas(): Schemas {
     Class: modelToSchema(Class),
     Stage: modelToSchema(Stage),
     StageState: modelToSchema(StageState),
+    StoryState: modelToSchema(StoryState),
+    Question: modelToSchema(Question),
     User: {
       oneOf: [
         "#/components/schemas/Educator",
@@ -94,12 +97,34 @@ export function schemas(): Schemas {
         }
       }
     },
+    QuestionCreationInfo: {
+      type: "object",
+      required: ["text", "shorthand", "story_name"],
+      properties: {
+        text: { type: "string" },
+        shorthand: { type: "string" },
+        story_name: { type: "string" },
+        answers_text: {
+          type: "array",
+          items: { type: "string" },
+        },
+        correct_answers: {
+          type: "array",
+          items: { type: "integer" },
+        },
+        neutral_answers: {
+          type: "array",
+          items: { type: "integer" },
+        },
+        version: { type: "integer" },
+      },
+    },
     Error: {
       type: "object",
       required: ["error"],
       properties: {
         error: { type: "string", description: "A message detailing why the operation failed" },
       }
-    }
+    },
   };
 }
