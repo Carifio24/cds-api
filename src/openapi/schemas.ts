@@ -1,5 +1,5 @@
 import type { OAS3Definition } from "swagger-jsdoc";
-import { Class, Educator, Student } from "../models";
+import { Class, Educator, Stage, StageState, Student } from "../models";
 import { modelToSchema } from "./utils";
 
 type Schemas = OAS3Definition["schemas"];
@@ -9,6 +9,8 @@ export function schemas(): Schemas {
     Educator: modelToSchema(Educator),
     Student: modelToSchema(Student),
     Class: modelToSchema(Class),
+    Stage: modelToSchema(Stage),
+    StageState: modelToSchema(StageState),
     User: {
       oneOf: [
         "#/components/schemas/Educator",
@@ -90,6 +92,13 @@ export function schemas(): Schemas {
           status: { type: "string", enum: ["bad_request", "ok", "already_exists", "error"] },
           success: { type: "boolean" },
         }
+      }
+    },
+    Error: {
+      type: "object",
+      required: ["error"],
+      properties: {
+        error: { type: "string", description: "A message detailing why the operation failed" },
       }
     }
   };
