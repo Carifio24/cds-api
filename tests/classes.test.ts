@@ -84,12 +84,7 @@ describe("Test class routes", () => {
     const { class1, class2, cleanup } = await setupClassesForEducator();
     for (const cls of [class1, class2]) {
       await authorize(request(testApp).delete(`/classes/${cls.code}`))
-        .expect(200)
-        .expect("Content-Type", /json/)
-        .then((res) => {
-          expect(res.body.success).toBe(true);
-          expect(res.body.message).toEqual("Class deleted");
-        });
+        .expect(204);
     }
     cleanup();
   });
@@ -100,7 +95,6 @@ describe("Test class routes", () => {
       .expect(404)
       .expect("Content-Type", /json/)
       .then((res) => {
-        expect(res.body.success).toBe(false);
         expect(res.body.error).toEqual(`Could not find class with ID ${badID}`);
       });
   });

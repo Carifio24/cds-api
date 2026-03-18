@@ -825,7 +825,10 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *           content:
    *             application/json:
    *               schema:
-   *                $ref: "#/components/schemas/Error"
+   *                 type: object
+   *                 properties:
+   *                   message:
+   *                     type: string
    *         404:
    *           description: Either the student or story does not exist
    *           content:

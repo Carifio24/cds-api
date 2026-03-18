@@ -170,7 +170,6 @@ describe("Test student routes", () => {
     await setIgnored(true)
       .expect(200)
       .expect({
-        success: true,
         message: `Successfully ignored student ${student.id} for story ${story.name}`,
       });
 
@@ -179,7 +178,6 @@ describe("Test student routes", () => {
     await setIgnored(true)
       .expect(200)
       .expect({
-        success: true,
         message: `Student ${student.id} was already ignored for story ${story.name}`,
       });
 
@@ -188,7 +186,6 @@ describe("Test student routes", () => {
     await setIgnored(false)
       .expect(200)
       .expect({
-        success: true,
         message: `Successfully unignored student ${student.id} for story ${story.name}`,
       });
 
@@ -197,7 +194,6 @@ describe("Test student routes", () => {
     await setIgnored(false)
       .expect(200)
       .expect({
-        success: true,
         message: `Student ${student.id} was already not ignored for story ${story.name}`,
       });
 
@@ -211,7 +207,6 @@ describe("Test student routes", () => {
     await authorize(request(testApp).put(`/students/ignore/${badID}/${badStory}`))
       .expect(404)
       .expect({
-        success: false,
         error: `No student found for identifier ${badID}`,
       });
 
@@ -219,7 +214,6 @@ describe("Test student routes", () => {
     await authorize(request(testApp).put(`/students/ignore/${student.username}/${badStory}`))
       .expect(404)
       .expect({
-        success: false,
         error: `No story found with name ${badStory}`,
       });
 
@@ -228,7 +222,6 @@ describe("Test student routes", () => {
       .send({ bogusKey: true })
       .expect(400)
       .expect({
-        success: false,
         error: "Invalid request body; should have form { ignore: <boolean> }",
       });
 

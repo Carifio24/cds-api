@@ -327,11 +327,7 @@ describe("Test stage state routes", () => {
 
     for (const stage of ["A", "B"]) {
       await authorize(request(testApp).delete(`/stage-state/${student1.id}/${story.name}/${stage}`))
-        .expect(200)
-        .expect("Content-Type", /json/)
-        .expect({
-          success: true, 
-        });
+        .expect(200);
 
       const count = await StageState.count({
         where: {
