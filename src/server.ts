@@ -717,8 +717,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *          oneOf:
    *          - type: string
    *          - type: integer
-   *          schema:
-   *            type: string
    *        - name: classID
    *          in: path
    *          required: true
@@ -1450,7 +1448,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *          oneOf:
    *            - type: string
    *            - type: integer
-   *        - name: storyName:
+   *        - name: storyName
    *          in: path
    *          required: true
    *          schema:
@@ -1757,8 +1755,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *        - name: storyName
    *          in: path
    *          required: true
-   *          schema:
-   *            type: string
+   *          type: string
    *      responses:
    *        200:
    *          content:
