@@ -45,7 +45,6 @@ interface PermissionInfo {
   resourcePath: string;
 }
 export async function hasPermission(info: PermissionInfo): Promise<boolean> {
-  console.log(info);
   return Permission.findOne({
     include: [
       {
