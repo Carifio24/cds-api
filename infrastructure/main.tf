@@ -184,17 +184,9 @@ resource "aws_security_group" "ecs_tasks" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "CDS Portal from ALB"
-    from_port       = 8865
-    to_port         = 8865
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  ingress {
-    description     = "CDS Hubble from ALB"
-    from_port       = 8765
-    to_port         = 8765
+    description     = "CDS API from ALB"
+    from_port       = 8080 
+    to_port         = 8080 
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
   }
@@ -212,6 +204,23 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
+resource "aws_s3_bucket" "alb_logs" {
+  bucket = "${var.environment}-alb-logs-bucket"
+}
+
+resource "aws_s3_bucket_policy" "alb_logs_policy" {
+  bucket = aws_s3_bucket.alb_logs.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { AWS = "arn:aws:iam::127311923021:root" }
+      Action    = "s3:PutObject"
+      Resource  = "${aws_s3_bucket.alb_logs.arn}/*"
+    }]
+  })
+}
+
 # Application Load Balancer
 resource "aws_lb" "main" {
   name               = "${var.environment}-alb"
@@ -226,12 +235,18 @@ resource "aws_lb" "main" {
     Name        = "${var.environment}-alb"
     Environment = var.environment
   }
+
+  access_logs {
+    bucket  = aws_s3_bucket.alb_logs.bucket
+    prefix  = "${var.environment}-alb"
+    enabled = true
+  }
 }
 
 # Target Group
 resource "aws_lb_target_group" "cds_api" {
   name        = "${var.environment}-tg"
-  port        = 8865
+  port        = 8080 
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
@@ -242,7 +257,7 @@ resource "aws_lb_target_group" "cds_api" {
     interval            = 60
     matcher             = "200"
     path                = "/"
-    port                = "8865"
+    port                = "8080"
     protocol            = "HTTP"
     timeout             = 30
     unhealthy_threshold = 2
@@ -277,7 +292,7 @@ data "aws_acm_certificate" "alb" {
   statuses = ["ISSUED"]
 }
 
-# HTTPS Listener
+# # HTTPS Listener
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.main.arn
   port              = "443"
@@ -483,7 +498,7 @@ resource "aws_ecs_task_definition" "cds_api" {
       image = "${aws_ecr_repository.cds_api.repository_url}:latest"
       portMappings = [
         {
-          containerPort = 8865
+          containerPort = 8080
           protocol      = "tcp"
         }
       ]
@@ -497,7 +512,22 @@ resource "aws_ecs_task_definition" "cds_api" {
       ]
 
       secrets = [
-        # TODO: Fill in secrets
+        {
+          name      = "DB_NAME"
+          valueFrom = "${aws_secretsmanager_secret.cds_api_secrets.arn}:DB_NAME::"
+        },
+        {
+          name      = "DB_USERNAME"
+          valueFrom = "${aws_secretsmanager_secret.cds_api_secrets.arn}:DB_USERNAME::"
+        },
+        {
+          name      = "DB_PASSWORD"
+          valueFrom = "${aws_secretsmanager_secret.cds_api_secrets.arn}:DB_PASSWORD::"
+        },
+        {
+          name      = "DB_HOSTNAME"
+          valueFrom = "${aws_secretsmanager_secret.cds_api_secrets.arn}:DB_HOSTNAME::"
+        }
       ]
 
       logConfiguration = {
@@ -545,7 +575,7 @@ resource "aws_ecs_service" "cds_api" {
   load_balancer {
     target_group_arn = aws_lb_target_group.cds_api.arn
     container_name   = "cds-api"
-    container_port   = 8865
+    container_port   = 8080
   }
 
   depends_on = [aws_lb_listener.main]
