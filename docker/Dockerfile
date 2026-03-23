@@ -13,4 +13,4 @@ ARG port=8081
 EXPOSE $port
 ENV PORT="$port"
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
