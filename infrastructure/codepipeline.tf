@@ -27,6 +27,10 @@ resource "random_string" "bucket_suffix" {
   length  = 8
   special = false
   upper   = false
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "aws_s3_bucket_versioning" "codepipeline_artifacts" {

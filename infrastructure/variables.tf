@@ -50,3 +50,14 @@ variable "alb_domain_name" {
   description = "Domain name for the ALB SSL certificate"
   type        = string
 }
+
+variable "api_secret_names" {
+  description = "Secret keys expected in the CDS API secret"
+  type        = list(string)
+  default = [
+    "DB_HOSTNAME",
+    "DB_NAME",
+    "DB_PASSWORD",
+    "DB_USERNAME",
+  ]
+}
