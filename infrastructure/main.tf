@@ -72,6 +72,17 @@ resource "aws_subnet" "private" {
   }
 }
 
+# DB subnet group
+resource "aws_db_subnet_group" "default" {
+  name       = "${var.environment}-db-subnet-group"
+  subnet_ids = aws_subnet.private[*].id
+
+  tags = {
+    Name        = "${var.environment}-db-subnet-group"
+    Environment = var.environment
+  }
+}
+
 # NAT Gateways
 resource "aws_eip" "nat" {
   count = 2
