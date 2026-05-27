@@ -75,7 +75,7 @@ resource "aws_subnet" "private" {
 # DB subnet group
 resource "aws_db_subnet_group" "default" {
   name       = "${var.environment}-db-subnet-group"
-  subnet_ids = aws_subnet.private[*].id
+  subnet_ids = concat(aws_subnet.private[*].id, aws_subnet.public[*].id)
 
   tags = {
     Name        = "${var.environment}-db-subnet-group"
