@@ -156,6 +156,18 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private[count.index].id
 }
 
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = aws_vpc.main.id
+  service_name = "com.amazonaws.us-east-1.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids = aws_route_table.private[*].id
+
+  tags = {
+    Name        = "${var.environment}-s3-gateway-endpoint"
+    Environment = var.environment
+  }
+}
+
 # Security Groups
 resource "aws_security_group" "alb" {
   name_prefix = "${var.environment}-alb-"
