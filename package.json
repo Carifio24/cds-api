@@ -57,6 +57,7 @@
     "winston": "^3.10.0"
   },
   "devDependencies": {
+    "@ehuelsmann/jest-openapi": "^0.18.0",
     "@types/multer": "^2.2.0",
     "eslint": "^8.13.0",
     "eslint-plugin-vue": "^8.6.0",
