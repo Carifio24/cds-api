@@ -4,12 +4,13 @@ import { beforeAll, afterAll, beforeEach, describe, it, expect } from "@jest/glo
 import type { Express } from "express";
 import type { Sequelize } from "sequelize";
 import request, { Response } from "supertest";
-import { authorize, createRandomClassWithStudents, createTestApp, getTestDatabaseConnection, randomBetween, randomClassForEducator, randomStudent } from "../../../../tests/utils";
+import { authorize, createRandomClassWithStudents, createTestApp, getTestDatabaseConnection, loadOpenAPISpec, randomBetween, randomClassForEducator, randomStudent } from "../../../../tests/utils";
 
 import { Class, Educator, Student } from "../../../models";
 import { createRandomGalaxies, createRandomHubbleMeasurementForStudent, createRandomHubbleDataForStudent, globalRoutePath } from "./utils";
 import { addStudentToClass } from "../../../database";
 import { HubbleMeasurement } from "../models";
+import { BASE_PATH } from "../router";
 
 describe("Test student IDs query parameter for class data", () => {
   let testDB: Sequelize;
@@ -28,6 +29,7 @@ describe("Test student IDs query parameter for class data", () => {
     for (const model of Object.values(testDB.models)) {
       await model.sync();
     }
+    loadOpenAPISpec(testApp, `${BASE_PATH}/docs.json`);
   });
 
   afterAll(async () => {

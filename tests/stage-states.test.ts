@@ -6,7 +6,7 @@ import type { Sequelize } from "sequelize";
 import type { Express } from "express";
 import { v4 } from "uuid";
 
-import { authorize, createTestApp, getTestDatabaseConnection, randomClassForEducator, randomEducator, randomStory, randomStudent } from "./utils";
+import { authorize, createTestApp, getTestDatabaseConnection, loadOpenAPISpec, randomClassForEducator, randomEducator, randomStory, randomStudent } from "./utils";
 import { Student, StageState, StudentsClasses, Class } from "../src/models";
 
 async function setupStageAndStudentStates() {
@@ -119,6 +119,7 @@ describe("Test stage state routes", () => {
   beforeAll(async () => {
     testDB = await getTestDatabaseConnection();
     testApp = await createTestApp(testDB);
+    loadOpenAPISpec(testApp);
   });
   
   afterAll(async () => {
@@ -155,6 +156,8 @@ describe("Test stage state routes", () => {
               expect(state).toMatchObject({...expectedStates[stage].state});
             }
           }
+
+          expect(res).toSatisfyApiSpec();
         });
     }
 
@@ -185,6 +188,7 @@ describe("Test stage state routes", () => {
             expect(state).toMatchObject({...expectedStates[index].state});
           }
 
+          expect(res).toSatisfyApiSpec();
         }
       });
 
@@ -213,6 +217,8 @@ describe("Test stage state routes", () => {
 
           const resState = resStates[0];
           expect(resState).toMatchObject({...state.state});
+
+          expect(res).toSatisfyApiSpec();
         });
     }
 
@@ -240,6 +246,8 @@ describe("Test stage state routes", () => {
           for (const [index, state] of resStates.entries()) {
             expect(state).toMatchObject({...states[index].state});
           }
+
+          expect(res).toSatisfyApiSpec();
         });
     }
 
@@ -266,7 +274,8 @@ describe("Test stage state routes", () => {
           story_name: story.name,
           stage_name: stage,
           state: state.state,
-        });
+        })
+        .then(res => expect(res).toSatisfyApiSpec());
     }
 
     await cleanup();
@@ -298,7 +307,8 @@ describe("Test stage state routes", () => {
           story_name: dataToUse.storyName,
           stage_name: dataToUse.stage,
           state: null,
-        });
+        })
+        .then(res => expect(res).toSatisfyApiSpec());
     }
 
     await cleanup();
@@ -317,7 +327,8 @@ describe("Test stage state routes", () => {
         story_name: story.name,
         stage_name: "A",
         state: newState,
-      });
+      })
+      .then(res => expect(res).toSatisfyApiSpec());
 
     await cleanup();
   });
@@ -327,7 +338,8 @@ describe("Test stage state routes", () => {
 
     for (const stage of ["A", "B"]) {
       await authorize(request(testApp).delete(`/stage-state/${student1.id}/${story.name}/${stage}`))
-        .expect(200);
+        .expect(200)
+        .then(res => expect(res).toSatisfyApiSpec());
 
       const count = await StageState.count({
         where: {

@@ -5,7 +5,7 @@ import request from "supertest";
 import type { InferAttributes, Sequelize } from "sequelize";
 import type { Express } from "express";
 
-import { authorize, createTestApp, getTestDatabaseConnection, randomStory, randomStudent, setupStudentInClasses } from "./utils";
+import { authorize, createTestApp, getTestDatabaseConnection, loadOpenAPISpec, randomStory, randomStudent, setupStudentInClasses } from "./utils";
 import { Class, IgnoreStudent, Student, StudentsClasses } from "../src/models";
 import { v4 } from "uuid";
 
@@ -14,6 +14,7 @@ let testApp: Express;
 beforeAll(async () => {
   testDB = await getTestDatabaseConnection();
   testApp = await createTestApp(testDB);
+  loadOpenAPISpec(testApp);
 });
 
 afterAll(() => {
@@ -38,7 +39,8 @@ describe("Test student routes", () => {
         success: true,
         status: "ok",
         student_info: data,
-      });
+      })
+      .then(res => expect(res).toSatisfyApiSpec());
 
     const student = await Student.findOne({ where: { username: data.username } });
     expect(student).not.toBeNull();
@@ -73,6 +75,7 @@ describe("Test student routes", () => {
         expect(typeof resStudent.profile_created).toBe("string");
         expect(resStudent).toHaveProperty("last_visit");
         expect(typeof resStudent.last_visit).toBe("string");
+        expect(res).toSatisfyApiSpec();
       });
 
     await student.destroy();

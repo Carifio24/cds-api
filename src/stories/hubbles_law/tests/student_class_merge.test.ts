@@ -5,7 +5,7 @@ import request, { Response } from "supertest";
 import type { Express } from "express";
 import { Op, type Sequelize } from "sequelize";
 
-import { authorize, createTestApp, getTestDatabaseConnection, createRandomClassWithStudents, randomStudent, randomBetween, randomClassForEducator, expectToMatchModel } from "../../../../tests/utils";
+import { authorize, createTestApp, getTestDatabaseConnection, createRandomClassWithStudents, loadOpenAPISpec, randomStudent, randomBetween, randomClassForEducator, expectToMatchModel } from "../../../../tests/utils";
 import { HubbleClassStudentMerge } from "../models/hubble_class_student_merges";
 import { globalRoutePath, createRandomHubbleDataForStudent, createRandomHubbleMeasurementForStudent, createRandomGalaxies } from "./utils";
 import { Class, ClassStories, Educator, IgnoreStudent, Student } from "../../../models";
@@ -13,6 +13,7 @@ import { HubbleMeasurement, HubbleStudentData } from "../models";
 import { addStudentToClass, findClassByIdOrCode } from "../../../database";
 import { mergeStudentIntoClass } from "../database";
 import { CreateClassResult } from "../../../request_results";
+import { BASE_PATH } from "../router";
 
 
 describe("Test student/class merge functionality", () => {
@@ -35,6 +36,7 @@ describe("Test student/class merge functionality", () => {
     for (const model of Object.values(testDB.models)) {
       await model.sync();
     }
+    loadOpenAPISpec(testApp, `${BASE_PATH}/docs.json`);
   });
   
   afterAll(async () => {
@@ -109,6 +111,8 @@ describe("Test student/class merge functionality", () => {
 
         // We need to include the merged students twice each
         expect(studentData.length).toEqual(totalStudentCount + mergedCount);
+
+        expect(res).toSatisfyApiSpec();
       });
   });
 
@@ -137,6 +141,8 @@ describe("Test student/class merge functionality", () => {
         expectedStudents.splice(index, 1);
         const expectedIDs = new Set(expectedStudents.map(student => student.id));
         expect(measurementIDs).toEqual(expectedIDs);
+
+        expect(res).toSatisfyApiSpec();
       });
 
     ignore.destroy();
@@ -172,6 +178,8 @@ describe("Test student/class merge functionality", () => {
           expect(typeof classInfo.code).toBe("string");
           
           classCode = classInfo.code;
+
+          expect(res).toSatisfyApiSpec();
         });
 
       const testClass = await findClassByIdOrCode(classCode);
@@ -201,7 +209,8 @@ describe("Test student/class merge functionality", () => {
     await authorize(request(testApp).put(route))
       .send(data)
       .expect(200)
-      .expect("Content-Type", /json/);
+      .expect("Content-Type", /json/)
+      .then(res => expect(res).toSatisfyApiSpec());
 
     let updatedMergeCount = await HubbleClassStudentMerge.count({ where: { class_id: cls.id } });
     expect(updatedMergeCount).toBe(desiredMergeCount);
@@ -210,7 +219,8 @@ describe("Test student/class merge functionality", () => {
     await authorize(request(testApp).put(route))
       .send(data)
       .expect(200)
-      .expect("Content-Type", /json/);
+      .expect("Content-Type", /json/)
+      .then(res => expect(res).toSatisfyApiSpec());
 
     updatedMergeCount = await HubbleClassStudentMerge.count({ where: { class_id: cls.id } });
     expect(updatedMergeCount).toBe(desiredMergeCount);
@@ -232,6 +242,7 @@ describe("Test student/class merge functionality", () => {
 
         expect(mergedStudentIDs.sort()).toEqual(studentsToMerge.map(student => student.id).sort());
 
+        expect(res).toSatisfyApiSpec();
       });
   });
 
@@ -252,6 +263,8 @@ describe("Test student/class merge functionality", () => {
         for (let i = 0; i < mergedCount; i++) {
           expectToMatchModel(mergedStudents[i], studentsToMerge[i], ["profile_created", "last_visit"]);
         }
+
+        expect(res).toSatisfyApiSpec();
       });
   });
 
@@ -265,6 +278,8 @@ describe("Test student/class merge functionality", () => {
         const error = res.body.error;
         expect(typeof error).toEqual("string");
         expect(error).toEqual(`No class exists with ID ${badID}`);
+
+        expect(res).toSatisfyApiSpec();
       });
   });
 
@@ -279,7 +294,10 @@ describe("Test student/class merge functionality", () => {
         const error = res.body.error;
         expect(typeof error).toEqual("string");
         expect(error).toEqual(`The class with ID ${cls.id} is not signed up for Hubble's Law`);
+
+        expect(res).toSatisfyApiSpec();
       });
+
   });
 
 });

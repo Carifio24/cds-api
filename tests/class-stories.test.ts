@@ -5,8 +5,7 @@ import request from "supertest";
 import type { Sequelize } from "sequelize";
 import type { Express } from "express";
 
-import { authorize, createTestApp, expectToMatchModel, getTestDatabaseConnection, randomClassForEducator, randomEducator, randomStory } from "./utils";
-import { setupApp } from "../src/app";
+import { authorize, createTestApp, expectToMatchModel, getTestDatabaseConnection, loadOpenAPISpec, randomClassForEducator, randomEducator, randomStory } from "./utils";
 import { ClassStories } from "../src/models";
 
 async function setupClassesWithStories() {
@@ -17,7 +16,6 @@ async function setupClassesWithStories() {
   const story2 = await randomStory();
   const story3 = await randomStory();
   const stories = [story1, story2, story3];
-  console.log(stories);
 
   const cs1 = await ClassStories.create({ class_id: cls.id, story_name: story1.name, active: true });
   const cs2 = await ClassStories.create({ class_id: cls.id, story_name: story2.name, active: true });
@@ -42,7 +40,7 @@ describe("Test class-story routes", () => {
   beforeAll(async () => {
     testDB = await getTestDatabaseConnection();
     testApp = await createTestApp(testDB);
-    setupApp(testApp, testDB);
+    await loadOpenAPISpec(testApp); 
   });
   
   afterAll(async () => {
@@ -67,6 +65,8 @@ describe("Test class-story routes", () => {
             expect(story).toHaveProperty("story_name");
             const index = storyNames.indexOf(story.story_name as string);
             expectToMatchModel(story, classStories[index]);
+
+            expect(res).toSatisfyApiSpec();
           });
         });
     }
@@ -78,7 +78,8 @@ describe("Test class-story routes", () => {
     const badID = -1;
     await authorize(request(testApp).get(`/classes/${badID}/stories`))
       .expect(404)
-      .expect("Content-Type", /json/);
+      .expect("Content-Type", /json/)
+      .then(res => expect(res).toSatisfyApiSpec());
   });
 
 });

@@ -5,7 +5,7 @@ import request from "supertest";
 import type { InferAttributes, Sequelize } from "sequelize";
 import type { Express } from "express";
 
-import { authorize, createTestApp, getTestDatabaseConnection, randomEducator } from "./utils";
+import { authorize, createTestApp, getTestDatabaseConnection, loadOpenAPISpec, randomEducator } from "./utils";
 import { Educator } from "../src/models";
 import { v4 } from "uuid";
 
@@ -14,6 +14,7 @@ let testApp: Express;
 beforeAll(async () => {
   testDB = await getTestDatabaseConnection();
   testApp = await createTestApp(testDB);
+  await loadOpenAPISpec(testApp); 
 });
 
 afterAll(() => {
@@ -39,6 +40,9 @@ describe("Test educator routes", () => {
         success: true,
         status: "ok",
         educator_info: data,
+      })
+      .then(res => {
+        expect(res).toSatisfyApiSpec();
       });
 
     const educator = await Educator.findOne({ where: { email: data.email } });
@@ -68,7 +72,8 @@ describe("Test educator routes", () => {
         success: true,
         status: "ok",
         educator_info: data,
-      });
+      })
+      .then(res => expect(res).toSatisfyApiSpec());
 
     const educator = await Educator.findOne({ where: { email: data.email } });
     expect(educator).not.toBeNull();
@@ -106,6 +111,8 @@ describe("Test educator routes", () => {
         expect(typeof resEducator.profile_created).toBe("string");
         expect(resEducator).toHaveProperty("last_visit");
         expect(typeof resEducator.last_visit).toBe("string");
+
+        expect(res).toSatisfyApiSpec();
       });
 
     await educator.destroy();
@@ -133,6 +140,8 @@ describe("Test educator routes", () => {
         expect(typeof resEducator.profile_created).toBe("string");
         expect(resEducator).toHaveProperty("last_visit");
         expect(typeof resEducator.last_visit).toBe("string");
+
+        expect(res).toSatisfyApiSpec();
       });
 
     await educator.destroy();

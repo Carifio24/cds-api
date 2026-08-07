@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 
-import { beforeAll, afterAll, describe, it } from "@jest/globals";
+import { beforeAll, afterAll, describe, expect, it } from "@jest/globals";
 import request from "supertest";
 import type { Sequelize } from "sequelize";
 import type { Express } from "express";
 
-import { authorize, createTestApp, expectBodyToMatch, getTestDatabaseConnection, randomClassForEducator, randomEducator, randomStory, randomStudent } from "./utils";
+import { authorize, createTestApp, expectBodyToMatch, getTestDatabaseConnection, loadOpenAPISpec, randomClassForEducator, randomEducator, randomStory, randomStudent } from "./utils";
 import { Student, StoryState, StudentsClasses } from "../src/models";
 
 async function setupStoryAndStudentStates() {
@@ -75,6 +75,7 @@ describe("Test story state routes", () => {
   beforeAll(async () => {
     testDB = await getTestDatabaseConnection();
     testApp = await createTestApp(testDB);
+    loadOpenAPISpec(testApp);
   });
   
   afterAll(async () => {
@@ -98,6 +99,7 @@ describe("Test story state routes", () => {
             state,
           };
           expectBodyToMatch(res, expected);
+          expect(res).toSatisfyApiSpec();
         });
 
     }
@@ -113,7 +115,8 @@ describe("Test story state routes", () => {
       .expect("Content-Type", /json/)
       .expect({
         error: `No state found for student ${badID} and story ${story.name}`,
-      });
+      })
+      .then(res => expect(res).toSatisfyApiSpec());
 
     await cleanup();
   });
@@ -126,7 +129,8 @@ describe("Test story state routes", () => {
       .expect("Content-Type", /json/)
       .expect({
         error: `No state found for student ${badID} and story ${badStory}`,
-      });
+      })
+      .then(res => expect(res).toSatisfyApiSpec());
 
   });
 
@@ -146,6 +150,7 @@ describe("Test story state routes", () => {
           state: newStoryState,
         };
         expectBodyToMatch(res, expected);
+        expect(res).toSatisfyApiSpec();
       });
 
     await cleanup();
@@ -177,6 +182,7 @@ describe("Test story state routes", () => {
         };
 
         expectBodyToMatch(res, expected);
+        expect(res).toSatisfyApiSpec();
       });
 
     const patch2 = {
@@ -202,6 +208,7 @@ describe("Test story state routes", () => {
           }
         };
         expectBodyToMatch(res, expected);
+        expect(res).toSatisfyApiSpec();
       });
 
     await cleanup();
