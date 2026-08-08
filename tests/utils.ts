@@ -31,7 +31,7 @@ import { v4 } from "uuid";
 import { getDatabaseConnection } from "../src/database";
 import { createConnection, Connection } from "mysql2/promise";
 import { hashAPIKey } from "../src/authorization";
-import { setupApp } from "../src/app";
+import { setupSwaggerDocs } from "../src/openapi/utils";
 
 export function authorize(request: Test): Test {
   return request.set({ Authorization: process.env.CDS_API_KEY });
@@ -160,7 +160,6 @@ export async function addTestData() {
 
 export async function createTestApp(db: Sequelize): Promise<Express> {
   const app = createApp(db, { sendEmails : false });
-  setupApp(app, db);
 
   const storiesDir = join(__dirname, "..", "src", "stories");
   const entries = fs.readdirSync(storiesDir, { withFileTypes: true });
@@ -182,6 +181,8 @@ export async function createTestApp(db: Sequelize): Promise<Express> {
       console.error(error);
     }
   }
+
+  setupSwaggerDocs(app);
 
   return app;
 }

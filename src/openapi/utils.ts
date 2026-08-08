@@ -1,9 +1,11 @@
 import type { Express, IRouter } from "express";
 import { DataTypes, type Model, type ModelAttributeColumnOptions, type ModelStatic } from "sequelize";
-import swaggerJSDoc, { OAS3Options, PathItem, Schema } from "swagger-jsdoc";
+import swaggerJSDoc, { OAS3Definition, OAS3Options, PathItem, Schema } from "swagger-jsdoc";
 import swaggerUi, { SwaggerUiOptions } from "swagger-ui-express";
 import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 import { GenericRequest, GenericResponse } from "../utils";
+import { middleware as openApiValidatorMiddleware } from "express-openapi-validator";
+import { OpenAPIV3 } from "express-openapi-validator/dist/framework/types";
 
 
 function typeInfoForAttribute<M extends Model>(attribute: ModelAttributeColumnOptions<M>): Record<string, unknown> | null{
@@ -134,6 +136,18 @@ export function setupSwaggerDocs(app: Express) {
       res.setHeader("Content-Type", "application/json");
       res.send(swaggerSpec);
     });
+
+    if (process.env.NODE_ENV === "test") {
+      console.info("SETTING UP MIDDLEWARE");
+      router.use(
+        openApiValidatorMiddleware({
+          apiSpec: swaggerSpec as OpenAPIV3.DocumentV3,
+          validateRequests: true,
+          validateResponses: true,
+          ignorePaths: () => false,
+        })
+      );
+    }
   });
 
   const baseOptions = swaggerOptions[0];
