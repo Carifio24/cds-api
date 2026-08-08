@@ -1763,7 +1763,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *          content:
    *            application/json:
    *              schema:
-                    $ref: "#/components/schemas/Error" 
+   *                $ref: "#/components/schemas/Error"
    */
   app.patch("/story-state/:studentID/:storyName", async (req, res) => {
     const params = req.params;
@@ -2729,34 +2729,34 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     *   get:
     *     tags:
     *       - temporary
-    *   description: Get the content of a temporary file
-    *   parameters:
-    *     - name: uuid
-    *       in: path
-    *       required: true
-    *       schema:
-    *         type: string
-    *   responses:
-    *     200:
-    *       description: The requested temporary file exists and its content has been returned. The MIME type will match the file's contents.
-    *       content:
-    *         application/octet-stream:
-    *           schema:
-    *             type: string
-    *             format: binary
-    *     400:
-    *       description: The given UUID was invalid
-    *       content:
-    *         application/json:
-    *           schema:
-    *             $ref: "#/components/schemas/Error"
-    *     404:
-    *       description: No temporary file was found for the given UUID
-    *       content:
-    *         application/json:
-    *           schema:
-    *             $ref: "#/components/schemas/Error"
-    *       
+    *     description: Get the content of a temporary file
+    *     parameters:
+    *       - name: uuid
+    *         in: path
+    *         required: true
+    *         schema:
+    *           type: string
+    *     responses:
+    *       200:
+    *         description: The requested temporary file exists and its content has been returned. The MIME type will match the file's contents.
+    *         content:
+    *           application/octet-stream:
+    *             schema:
+    *               type: string
+    *               format: binary
+    *       400:
+    *         description: The given UUID was invalid
+    *         content:
+    *           application/json:
+    *             schema:
+    *               $ref: "#/components/schemas/Error"
+    *       404:
+    *         description: No temporary file was found for the given UUID
+    *         content:
+    *           application/json:
+    *             schema:
+    *               $ref: "#/components/schemas/Error"
+    *         
     */
   app.get("/temp/:uuid", async (req, res) => {
     const uuid = req.params.uuid;
