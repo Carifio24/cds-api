@@ -23,7 +23,7 @@ import {
   StudentsClasses,
   initializeModels
 } from "../src/models";
-import { createApp } from "../src/server";
+import { createApp, setupRoutes } from "../src/server";
 import { Class, Student } from "../src/models";
 import { APIKey } from "../src/models/api_key";
 import { config } from "dotenv";
@@ -159,16 +159,17 @@ export async function addTestData() {
 }
 
 export async function createTestApp(db: Sequelize): Promise<Express> {
-  const app = createApp(db, { sendEmails : false });
+  const app = createApp(db);
 
   const storiesDir = join(__dirname, "..", "src", "stories");
   const entries = fs.readdirSync(storiesDir, { withFileTypes: true });
+  const storyParams = { app, db };
   entries.forEach(entry => {
     if (entry.isDirectory()) {
       const file = join(storiesDir, entry.name, "main.ts");
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const data = require(file);
-      data.setup(app, db);
+      data.setup(storyParams);
       app.use(data.path, data.router);
     }
   });
@@ -183,6 +184,15 @@ export async function createTestApp(db: Sequelize): Promise<Express> {
   }
 
   setupSwaggerDocs(app);
+  setupRoutes(app, { sendEmails: false });
+  entries.forEach(entry => {
+     if (entry.isDirectory()) {
+      const file = join(storiesDir, entry.name, "main.ts");
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const data = require(file);
+      data.createEndpoints(data.router);
+    }
+  });
 
   return app;
 }
