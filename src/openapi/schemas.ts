@@ -30,7 +30,10 @@ export function schemas(): Schemas {
         first_name: { type: "string" },
         last_name: { type: "string" },
         password: { type: "string" },
-        email: { type: "string", format: "email" },
+        email: {
+          type: "string", 
+          format: "email" 
+        },
         username: { type: "string" },
         institution: { type: "string" },
         age: { type: "number", format: "int32" },
@@ -56,7 +59,10 @@ export function schemas(): Schemas {
       properties: {
         username: { type: "string" },
         password: { type: "string" },
-        email: { type: "string", format: "email" },
+        email: {
+          type: "string", 
+          format: "email" 
+        },
         age: { type: "number", format: "int32" },
         gender: { type: "string" },
         institution: { type: "string" },

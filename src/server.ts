@@ -88,6 +88,7 @@ import { getAPIKey, hasPermission } from "./authorization";
 import { Sequelize } from "sequelize";
 import { sendEmail } from "./email";
 import { logger } from "./logger";
+import { convertDatesToString } from "./utils";
 
 // TODO: Clean up these type definitions
 
@@ -131,17 +132,16 @@ export interface AppOptions {
   sendEmails?: boolean;
 }
 
-export function createApp(db: Sequelize, options?: AppOptions): Express {
-
-  const sendEmails = options?.sendEmails ?? true;
-
+export function createApp(db: Sequelize): Express {
   const app = express();
   setupApp(app, db);
+  return app;
+}
 
-  app.all("*", (req, _res, next) => {
-    console.log(req.session.id);
-    next();
-  });
+
+export function setupRoutes(app: Express, options?: AppOptions) {
+
+  const sendEmails = options?.sendEmails ?? true;
 
   /**
    * @openapi
@@ -553,8 +553,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *                  $ref: "#/components/schemas/Student"
   */
   app.get("/students", async (_req, res) => {
-    const queryResponse = await getAllStudents();
-    res.json(queryResponse);
+    const students = await getAllStudents();
+    res.json(students);
   });
 
   /**
@@ -575,8 +575,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *                  $ref: "#/components/schemas/Educator"
   */
   app.get("/educators", async (_req, res) => {
-    const queryResponse = await getAllEducators();
-    res.json(queryResponse);
+    const educators = await getAllEducators();
+    res.json(educators);
   });
 
   /**
@@ -628,8 +628,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   *               type: object
   *               properties:
   *                 student:
-  *                   schema:
-  *                     $ref: "#/components/schemas/Student"
+  *                   $ref: "#/components/schemas/Student"
   *       404:
   *         description: A student with the given identifier does not exist
   *         content:
@@ -638,7 +637,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   *               type: object
   *               properties:
   *                 student:
-  *                   type: null
+  *                   type: "null"
   */
   app.get([
     "/students/:identifier",
@@ -692,7 +691,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   *                   type: number
   *                   format: null 
   *                 classes:
-  *                   type: array
+  *                   type: "null"
   */
   app.get("/students/:identifier/classes", async (req, res) => {
     const student = await findStudentByIdOrUsername(req.params.identifier);
@@ -700,7 +699,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
       res.statusCode = 404;
       res.json({
         student_id: null,
-        classes: []
+        classes: null,
       });
       return;
     }
@@ -953,13 +952,13 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   *         content:
   *           application/json:
   *             schema:
-  *               type: "#/components/schemas/Educator"
+  *               $ref: "#/components/schemas/Educator"
   *       404:
   *         description: An educator with the given identifier does not exist
   *         content:
   *           application/json:
   *             schema:
-  *               type: null
+  *               type: "null"
   */
   app.get("/educators/:identifier", async (req, res) => {
     const params = req.params;
@@ -1146,13 +1145,13 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
   *         content:
   *           application/json:
   *             schema:
-  *               type: "#/components/schemas/Class"
+  *               $ref: "#/components/schemas/Class"
   *       404:
   *         description: A class with the given identifier does not exist
   *         content:
   *           application/json:
   *             schema:
-  *               type: null
+  *               type: "null"
   */
   app.get("/classes/:identifier", async (req, res) => {
     const params = req.params;
@@ -1166,6 +1165,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     }
 
     const size = cls != null ? await classSize(cls.id) : 0;
+
     if (cls === null) {
       res.statusCode = 404;
     }
@@ -1190,11 +1190,6 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *            oneOf:
    *              - type: string
    *              - type: integer
-   *        - name: classID
-   *          in: path
-   *          required: true
-   *          schema:
-   *            type: integer
    *      responses:
    *        204:
    *          description: The class has been deleted
@@ -1311,7 +1306,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *                type: object
    *                properties:
    *                  class_id:
-   *                    type: string
+   *                    type: integer 
    *                  expected_size:
    *                    type: integer
    *        404:
@@ -1364,10 +1359,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *          content:
    *            application/json:
    *              schema:
-   *                type: object
-   *                properties:
-   *                  error:
-   *                    type: string
+   *                $ref: "#/components/schemas/Error" 
    */
   app.get("/classes/roster/:classID", async (req, res) => {
     const classID = Number(req.params.classID);
@@ -1380,7 +1372,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     }
 
     const students = await getClassRoster(classID);
-    res.json(students);
+    res.json(students.map(student => convertDatesToString(student)));
   });
 
   /*
@@ -1598,9 +1590,12 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *          content:
    *            application/json:
    *              schema:
-   *                type: array
-   *                items:
-   *                  $ref: "#/components/schemas/ClassStories"
+   *                type: object
+   *                properties:
+   *                  stories:
+   *                    type: array
+   *                    items:
+   *                      $ref: "#/components/schemas/ClassStories"
    *        404:
    *          description: No class exists with the given ID
    *          content:
@@ -1619,6 +1614,8 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
     }
 
     const stories = await ClassStories.findAll({ where: { class_id: cls.id } });
+    console.log("STORIES");
+    console.log(stories);
     res.json({ stories });
   });
 
@@ -2058,7 +2055,7 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
    *                  stage_state:
    *                    type: string
    *                  state:
-   *                    type: null 
+   *                    type: "null"
    */
   app.put("/stage-state/:studentID/:storyName/:stageName", async (req, res) => {
     const params = req.params;
@@ -3017,6 +3014,4 @@ export function createApp(db: Sequelize, options?: AppOptions): Express {
 
     res.json({ ratings });
   });
-
-  return app;
 }

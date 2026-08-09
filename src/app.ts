@@ -1,4 +1,4 @@
-import { Express, RequestHandler } from "express";
+import { Express, RequestHandler, ErrorRequestHandler } from "express";
 import session from "express-session";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -105,6 +105,7 @@ export function setupApp(app: Express, db: Sequelize) {
     ],
     definition: {
       openapi: COSMICDS_OPENAPI_VERSION,
+      servers: [{ url: "http://localhost:8080" }],
       info: {
         title: "CosmicDS API",
         version: "0.1.0",
@@ -122,6 +123,10 @@ export function setupApp(app: Express, db: Sequelize) {
       ],
     },
   };
+  console.log("SCHEMAS");
+  console.log(schemas()["Student"]);
+  console.log(JSON.stringify(schemas()["Class"], null, 2));
+  console.log(schemas()["Educator"]);
 
   registerSwaggerDocs({
     router: app,
@@ -131,13 +136,23 @@ export function setupApp(app: Express, db: Sequelize) {
   });
 
   app.use(function(req, res, next) {
-
     const origin = req.get("origin");
     if (origin !== undefined && ALLOWED_ORIGINS.includes(origin)) {
       res.header("Access-Control-Allow-Origin", origin);
     }
     next();
   });
+
+  const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
+    console.info("ERROR HANDLER");
+    console.info(req.path);
+    console.info(err);
+    res.status(err.status || 500).json({
+      message: err.message,
+      errors: err.errors,
+    });
+  };
+  app.use(errorHandler);
 
   app.all("*", (req, _res, next) => {
     console.log(req.session.id);

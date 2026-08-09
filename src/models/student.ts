@@ -69,13 +69,16 @@ export function initializeStudentModel(sequelize: Sequelize) {
       defaultValue: null,
     },
     ip: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     lat: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     lon: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     profile_created: {
       type: DataTypes.DATE,
@@ -93,7 +96,8 @@ export function initializeStudentModel(sequelize: Sequelize) {
       defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
     },
     last_visit_ip: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     seed: {
       type: DataTypes.TINYINT,
@@ -101,7 +105,8 @@ export function initializeStudentModel(sequelize: Sequelize) {
       defaultValue: 0
     },
     team_member: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     dummy: {
       type: DataTypes.BOOLEAN,

@@ -64,22 +64,28 @@ export function initializeEducatorModel(sequelize: Sequelize) {
       allowNull: false,
     },
     institution: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     age: {
       type: DataTypes.TINYINT,
+      defaultValue: null,
     },
     gender: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     ip: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     lat: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     lon: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     profile_created: {
       type: DataTypes.DATE,
@@ -89,7 +95,7 @@ export function initializeEducatorModel(sequelize: Sequelize) {
     visits: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
     },
     last_visit: {
       type: DataTypes.DATE,
@@ -97,7 +103,8 @@ export function initializeEducatorModel(sequelize: Sequelize) {
       defaultValue: Sequelize.literal("CURRENT_TIMESTAMP")
     },
     last_visit_ip: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null,
     }
   }, {
     sequelize,

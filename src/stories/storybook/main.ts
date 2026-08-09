@@ -1,7 +1,11 @@
-import { router, setup } from "./router";
+import { StoryInfo } from "../../types";
+import { createEndpoints, router, setup } from "./router";
 
-module.exports = {
+const storyInfo: StoryInfo = {
   path: "/storybook",
   router,
   setup,
+  createEndpoints,
 };
+
+module.exports = storyInfo;

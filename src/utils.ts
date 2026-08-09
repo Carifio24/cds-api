@@ -159,3 +159,12 @@ export function creationToUpdateAttributes<M extends Model>(info: CreationAttrib
   return update;
 }
 
+export function convertDatesToString<M extends Model>(item: M): object {
+  const itemJSON = item.toJSON();
+  Object.entries(itemJSON).forEach(([key, value]) => {
+    if (value instanceof Date) {
+      itemJSON[key] = value.toISOString();
+    }
+  });
+  return itemJSON;
+}
