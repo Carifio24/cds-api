@@ -163,8 +163,31 @@ export function convertDatesToString<M extends Model>(item: M): object {
   const itemJSON = item.toJSON();
   Object.entries(itemJSON).forEach(([key, value]) => {
     if (value instanceof Date) {
-      itemJSON[key] = value.toISOString();
+      if (isNaN(value.getTime())) {
+        console.log("DATESTRING");
+        console.log(item);
+      }
+      const dateString = isNaN(value.getTime()) ? "Invalid Date" : value.toISOString();
+      itemJSON[key] = dateString;
     }
   });
   return itemJSON;
+}
+
+export function convertAllDatesToString(value: unknown): unknown {
+  if (!value) {
+    return value;
+  } else if (Array.isArray(value)) {
+    return value.map((item: unknown) => convertAllDatesToString(item));
+  } else if (value instanceof Model) {
+    return convertDatesToString(value);
+  } else if (typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    Object.entries(value).forEach(([key, val]) => {
+      result[key] = convertAllDatesToString(val);
+    });
+    return result;
+  } else {
+    return value;
+  }
 }

@@ -99,7 +99,7 @@ export function initializeEducatorModel(sequelize: Sequelize) {
     },
     last_visit: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
       defaultValue: Sequelize.literal("CURRENT_TIMESTAMP")
     },
     last_visit_ip: {

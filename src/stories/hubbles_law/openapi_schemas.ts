@@ -1,6 +1,6 @@
 import { Schemas, schemas as baseSchemas } from "../../openapi/schemas";
 import { modelToSchema } from "../../openapi/utils";
-import { Galaxy, HubbleClassData, HubbleStudentData } from "./models";
+import { Galaxy, HubbleClassData, HubbleMeasurement, HubbleStudentData, SampleHubbleMeasurement } from "./models";
 
 const measurementInput = {
   type: "object",
@@ -23,25 +23,15 @@ const measurementInput = {
   }
 };
 
-const measurement = {
-  ...measurementInput,
-  required: ["student_id", "galaxy_id"],
-};
-
 const sampleMeasurementInput = {
   ...measurementInput,
   properties: {
     ...measurementInput.properties, 
     measurement_number: { 
       type: "string", 
-      // enum: ["first", "second"],
+      enum: ["first", "second"],
     },
   },
-};
-
-const sampleMeasurement = {
-  ...sampleMeasurementInput,
-  required: ["student_id", "galaxy_id"],
 };
 
 const minimalMeasurement = {
@@ -61,6 +51,15 @@ const minimalStudentData = {
   required: ["student_id", "age_value", "class_id"],
   properties: {
     student_id: { type: "integer" },
+    age_value: { type: "number" },
+    class_id: { type: "integer" },
+  },
+};
+
+const minimalClassData = {
+  type: "object",
+  required: ["class_id", "age_value"],
+  properties: {
     age_value: { type: "number" },
     class_id: { type: "integer" },
   },
@@ -90,11 +89,12 @@ export function schemas(): Schemas {
     HubbleStudentData: modelToSchema(HubbleStudentData),
     HubbleClassData: modelToSchema(HubbleClassData),
     HubbleMeasurementInput: measurementInput,
-    HubbleMeasurement: measurement,
+    HubbleMeasurement: modelToSchema(HubbleMeasurement),
     HubbleSampleMeasurementInput: sampleMeasurementInput,
-    HubbleSampleMeasurement: sampleMeasurement,
+    HubbleSampleMeasurement: modelToSchema(SampleHubbleMeasurement),
     MinimalHubbleMeasurement: minimalMeasurement,
     MinimalHubbleStudentData: minimalStudentData,
+    MinimalHubbleClassData: minimalClassData,
     MinimalGalaxy: minimalGalaxy,
   };
 }

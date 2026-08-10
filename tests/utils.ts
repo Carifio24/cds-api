@@ -179,7 +179,7 @@ export async function createTestApp(db: Sequelize): Promise<Express> {
     try {
       await model.sync();
     } catch (error) {
-      console.error(error);
+      console.warn(error);
     }
   }
 

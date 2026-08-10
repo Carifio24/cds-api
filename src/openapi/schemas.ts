@@ -31,8 +31,8 @@ export function schemas(): Schemas {
         last_name: { type: "string" },
         password: { type: "string" },
         email: {
-          type: "string", 
-          format: "email" 
+          type: "string",
+          format: "email"
         },
         username: { type: "string" },
         institution: { type: "string" },
@@ -60,8 +60,8 @@ export function schemas(): Schemas {
         username: { type: "string" },
         password: { type: "string" },
         email: {
-          type: "string", 
-          format: "email" 
+          type: "string",
+          format: "email"
         },
         age: { type: "number", format: "int32" },
         gender: { type: "string" },

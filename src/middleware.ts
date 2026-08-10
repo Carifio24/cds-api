@@ -1,7 +1,7 @@
 import { Request, Response as ExpressResponse, NextFunction } from "express";
 
 import { requestHasPermission } from "./authorization";
-import { ALLOWED_ORIGINS } from "./utils";
+import { ALLOWED_ORIGINS, convertAllDatesToString } from "./utils";
 
 export async function apiKeyMiddleware(req: Request, res: ExpressResponse, next: NextFunction): Promise<void> {
 

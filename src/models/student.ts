@@ -44,8 +44,8 @@ export function initializeStudentModel(sequelize: Sequelize) {
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: true,
+      defaultValue: null,
     },
     username: {
       type: DataTypes.STRING,

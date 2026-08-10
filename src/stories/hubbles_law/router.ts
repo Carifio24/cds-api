@@ -8,7 +8,7 @@ import {
   GenericResponse
 } from "../../server";
 
-import { OptionalInt, OptionalString } from "../../utils";
+import { convertAllDatesToString, convertDatesToString, OptionalInt, OptionalString } from "../../utils";
 
 import {
   getGalaxyByName,
@@ -562,7 +562,7 @@ export function createEndpoints(router: Router) {
     const measurements = await getClassMeasurements(classID, !excludeMergedStudents, completeOnly);
     res.status(200).json({
       class_id: classID,
-      measurements,
+      measurements: measurements.map(meas => convertDatesToString(meas)),
     });
   });
   
@@ -630,7 +630,7 @@ export function createEndpoints(router: Router) {
   
     res.json({
       student_id: studentID,
-      measurements: measurements
+      measurements: (measurements ?? []).map(meas => convertDatesToString(meas)),
     });
   });
   
@@ -705,7 +705,7 @@ export function createEndpoints(router: Router) {
     res.json({
       student_id: studentID,
       galaxy_id: galaxyID,
-      measurement: measurement
+      measurement: convertDatesToString(measurement),
     });
   });
   
@@ -773,7 +773,7 @@ export function createEndpoints(router: Router) {
   
     res.json({
       student_id: studentID,
-      measurements: measurements
+      measurements: measurements.map(meas => convertAllDatesToString(meas)),
     });
   });
   
@@ -857,7 +857,7 @@ export function createEndpoints(router: Router) {
   
     res.json({
       student_id: studentID,
-      measurement: measurement
+      measurement: convertAllDatesToString(measurement),
     });
   });
   
@@ -882,7 +882,7 @@ export function createEndpoints(router: Router) {
     const filterNullString = ((req.query.filter_null as string) ?? "true").toLowerCase();
     const filterNull = filterNullString !== "false";
     const measurements = await getAllSampleHubbleMeasurements(filterNull);
-    res.json(measurements);
+    res.json(convertAllDatesToString(measurements));
   });
   
   /**
@@ -926,7 +926,7 @@ export function createEndpoints(router: Router) {
       });
     } else {
       const measurements = await getAllNthSampleHubbleMeasurements(measurementNumber);
-      res.json(measurements);
+      res.json(convertAllDatesToString(measurements));
     }
   });
   
@@ -1217,7 +1217,7 @@ export function createEndpoints(router: Router) {
     res.json({
       student_id: studentID,
       class_id: classID,
-      measurements,
+      measurements: convertAllDatesToString(measurements),
     });
   });
   
@@ -1316,7 +1316,7 @@ export function createEndpoints(router: Router) {
     res.status(200).json({
       student_id: studentID,
       class_id: null,
-      measurements,
+      measurements: convertAllDatesToString(measurements),
     });
   });
   
@@ -1445,7 +1445,7 @@ export function createEndpoints(router: Router) {
    *                      items:
    *                        oneOf:
    *                          - $ref: "#/components/schemas/Student"
-   *                          - $ref: integer
+   *                          - type: integer
    *        404:
    *          description: The class does not exist
    *          content:
@@ -1604,7 +1604,9 @@ export function createEndpoints(router: Router) {
    *                  classData:
    *                    type: array
    *                    items:
-   *                      $ref: "#/components/schemas/HubbleClassData"
+   *                      oneOf:
+   *                        - $ref: "#/components/schemas/HubbleClassData"
+   *                        - $ref: "#/components/schemas/MinimalHubbleClassData"
    */
   router.get("/all-data", async (req, res) => {
     const minimal = (req.query?.minimal as string)?.toLowerCase() === "true";
@@ -1622,10 +1624,12 @@ export function createEndpoints(router: Router) {
         getAllHubbleMeasurements(before, minimal),
         getAllHubbleStudentData([...classIDs], minimal),
       ]);
+
+    console.log(convertAllDatesToString(studentData[0]));
     res.json({
-      measurements,
-      studentData,
-      classData
+      measurements: convertAllDatesToString(measurements),
+      studentData: convertAllDatesToString(studentData),
+      classData: convertAllDatesToString(classData),
     });
   });
   

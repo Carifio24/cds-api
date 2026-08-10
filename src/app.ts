@@ -9,7 +9,7 @@ import sequelizeStore from "connect-session-sequelize";
 import { v4 } from "uuid";
 
 import { apiKeyMiddleware } from "./middleware";
-import { ALLOWED_ORIGINS } from "./utils";
+import { ALLOWED_ORIGINS, convertAllDatesToString } from "./utils";
 import { OAS3Options } from "swagger-jsdoc";
 
 import { schemas } from "./openapi/schemas";
@@ -124,9 +124,9 @@ export function setupApp(app: Express, db: Sequelize) {
     },
   };
   console.log("SCHEMAS");
-  console.log(schemas()["Student"]);
+  console.log(JSON.stringify(schemas()["Student"], null, 2));
   console.log(JSON.stringify(schemas()["Class"], null, 2));
-  console.log(schemas()["Educator"]);
+  console.log(JSON.stringify(schemas()["Educator"], null, 2));
 
   registerSwaggerDocs({
     router: app,

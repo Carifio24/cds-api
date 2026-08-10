@@ -24,13 +24,13 @@ describe("Test educator routes", () => {
 
   it("Should sign up an educator (minimal info)", async () => {
     const data = {
-      first_name: v4(), 
+      first_name: v4(),
       last_name: v4(),
       password: v4(),
       email: v4(),
       username: v4(),
     };
-  
+
     await authorize(request(testApp).post("/educators/create"))
       .send(data)
       .expect(201)
@@ -45,12 +45,12 @@ describe("Test educator routes", () => {
     expect(educator).not.toBeNull();
 
     await educator?.destroy();
-    
+
   });
 
   it("Should sign up an educator (full info)", async () => {
     const data = {
-      first_name: v4(), 
+      first_name: v4(),
       last_name: v4(),
       password: v4(),
       email: v4(),
@@ -59,7 +59,7 @@ describe("Test educator routes", () => {
       age: 5,
       gender: "Male",
     };
-  
+
     await authorize(request(testApp).post("/educators/create"))
       .send(data)
       .expect(201)
@@ -74,12 +74,12 @@ describe("Test educator routes", () => {
     expect(educator).not.toBeNull();
 
     await educator?.destroy();
-    
+
   });
 
   it("Should return the correct educator by ID", async () => {
     const educator = await Educator.create({
-      first_name: v4(), 
+      first_name: v4(),
       last_name: v4(),
       password: v4(),
       email: v4(),
@@ -120,6 +120,8 @@ describe("Test educator routes", () => {
     // not the actual date values
     delete json.profile_created;
     delete json.last_visit;
+    console.log("EDUCATOR_JSON");
+    console.log(json);
 
     await authorize(request(testApp).get(`/educators/${educator.username}`))
       .expect(200)

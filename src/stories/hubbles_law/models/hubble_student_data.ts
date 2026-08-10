@@ -29,19 +29,19 @@ export function initializeHubbleStudentDataModel(sequelize: Sequelize) {
     },
     hubble_fit_unit: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
     },
     age_value: {
       type: DataTypes.FLOAT,
-      allowNull: true
+      allowNull: true,
     },
     age_unit: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
     },
     last_data_update: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
     }
   }, {
     sequelize,

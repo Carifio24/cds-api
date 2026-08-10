@@ -25,13 +25,13 @@ function typeInfoForAttribute<M extends Model>(attribute: ModelAttributeColumnOp
   if (type == DataTypes.DATE.key) {
     return {
       type: "string", 
-      // format: "date-time" 
+      format: "date-time" 
     };
   }
   if (type == DataTypes.DATEONLY.key) {
     return {
       type: "string", 
-      // format: "date" 
+      format: "date" 
     };
   }
 
@@ -39,7 +39,7 @@ function typeInfoForAttribute<M extends Model>(attribute: ModelAttributeColumnOp
   if (intTypes.includes(type)) {
     return {
       type: "integer", 
-      // format: "int32" 
+      format: "int32" 
     };
   }
 
@@ -47,7 +47,7 @@ function typeInfoForAttribute<M extends Model>(attribute: ModelAttributeColumnOp
   if (bigIntTypes.includes(type)) {
     return {
       type: "integer", 
-      // format: "int64" 
+      format: "int64" 
     };
   }
 
@@ -76,19 +76,8 @@ export function modelToSchema<M extends Model>(modelType: ModelStatic<M>): Schem
     if (!attr.allowNull && attr.defaultValue !== null) {
       required.push(key);
     } else {
-      if ("enum" in info) {
-        const enumValues = info["enum"] as (string | null)[];
-        if (!enumValues.includes(null)) {
-          enumValues.push(null);
-        }
-        const type = info["type"];
-        if (typeof type === "string") {
-          info["type"] = [type, "null"];
-        } else if (Array.isArray(type) && !type.includes("null")) {
-          type.push("null");
-        }
-      } else if ("format" in info) {
-          info = { oneOf: [info, {type: "null"}] };
+      if ("enum" in info || "format" in info) {
+        info = { oneOf: [info, {type: "null"}] };
       } else {
         info["type"] = [info["type"], "null"];
       }
@@ -176,14 +165,14 @@ export function setupSwaggerDocs(app: Express) {
           apiSpec: swaggerSpec as OpenAPIV3.DocumentV3_1,
           validateRequests: false,
           validateResponses: {
-            onError: (_err, json) => {
+            onError: (error, _json) => {
               console.log("OPENAPI ERROR");
-              console.log(json);
-              // throw new Error(err.message);
+              throw new Error(error.message);
             },
           },
           useRequestUrl: true,
           ajvFormats: ["date-time", "date", "int32"],
+          unknownFormats: ["email"],
         })
       );
     }
