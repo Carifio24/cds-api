@@ -141,7 +141,7 @@ function filterTags(spec: GenericObject) {
   spec.tags = tags.filter(tag => usedTags.has(tag["name"]));
 }
 
-export function setupSwaggerDocs(app: Express) {
+export function setupOpenAPI(app: Express) {
 
   const defaultDocsPath = "/docs";
   const urls = swaggerOptions.map(options => {

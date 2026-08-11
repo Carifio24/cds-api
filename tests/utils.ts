@@ -31,7 +31,7 @@ import { v4 } from "uuid";
 import { getDatabaseConnection } from "../src/database";
 import { createConnection, Connection } from "mysql2/promise";
 import { hashAPIKey } from "../src/authorization";
-import { setupSwaggerDocs } from "../src/openapi/utils";
+import { setupOpenAPI } from "../src/openapi/utils";
 import { createApp, setupApp } from "../src/app";
 
 export function authorize(request: Test): Test {

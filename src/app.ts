@@ -16,7 +16,7 @@ import { OAS3Options } from "swagger-jsdoc";
 
 import { schemas } from "./openapi/schemas";
 import { COSMICDS_OPENAPI_VERSION, COSMICDS_OPENAPI_APIKEY_SCHEME, COSMICDS_OPENAPI_TAGS } from "./openapi/options";
-import { registerSwaggerDocs, setupSwaggerDocs } from "./openapi/utils";
+import { registerSwaggerDocs, setupOpenAPI } from "./openapi/utils";
 import { storyRouter } from "./story_router";
 import { StoryInfo } from "./types";
 import { setupRoutes } from "./server";
@@ -145,9 +145,6 @@ export function setupApp(app: Express, db: Sequelize) {
   });
 
   const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
-    console.info("ERROR HANDLER");
-    console.info(req.path);
-    console.info(err);
     res.status(err.status || 500).json({
       message: err.message,
       errors: err.errors,
@@ -215,7 +212,7 @@ export async function createApp(params: CreateAppParams) {
     });
   }
 
-  setupSwaggerDocs(app);
+  setupOpenAPI(app);
   setupRoutes(app, { sendEmails: params.sendEmails ?? true });
   storiesData.forEach(data => data.createEndpoints(data.router));
 
