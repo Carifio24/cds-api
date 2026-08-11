@@ -1,20 +1,25 @@
-import { Express, RequestHandler, ErrorRequestHandler } from "express";
+import express, { Express, RequestHandler, ErrorRequestHandler } from "express";
 import session from "express-session";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import cors, { CorsOptions } from "cors";
+import { readdirSync } from "fs";
+import { join } from "path";
 import { Sequelize } from "sequelize";
 import sequelizeStore from "connect-session-sequelize";
 import { v4 } from "uuid";
 
 import { apiKeyMiddleware } from "./middleware";
-import { ALLOWED_ORIGINS, convertAllDatesToString } from "./utils";
+import { ALLOWED_ORIGINS } from "./utils";
 import { OAS3Options } from "swagger-jsdoc";
 
 import { schemas } from "./openapi/schemas";
 import { COSMICDS_OPENAPI_VERSION, COSMICDS_OPENAPI_APIKEY_SCHEME, COSMICDS_OPENAPI_TAGS } from "./openapi/options";
-import { registerSwaggerDocs } from "./openapi/utils";
+import { registerSwaggerDocs, setupSwaggerDocs } from "./openapi/utils";
+import { storyRouter } from "./story_router";
+import { StoryInfo } from "./types";
+import { setupRoutes } from "./server";
 
 const MAX_SIZE_MB = 5;
 export const uploader = multer({
@@ -155,4 +160,64 @@ export function setupApp(app: Express, db: Sequelize) {
     next();
   });
 
+}
+
+interface CreateAppParams {
+  db: Sequelize;
+  storiesDir: string;
+  mainFilename: string;
+  sync?: boolean;
+  sendEmails?: boolean;
+  storyRouters?: boolean;
+}
+
+export async function createApp(params: CreateAppParams) {
+
+  const db = params.db;
+  const app = express();
+  setupApp(app, db);
+
+  const storiesData: StoryInfo[] = [];
+  const entries = readdirSync(params.storiesDir, { withFileTypes: true });
+  const storyParams = { app, db };
+  entries.forEach(entry => {
+    if (entry.isDirectory()) {
+      const file = join(params.storiesDir, entry.name, params.mainFilename);
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const data = require(file) as StoryInfo;
+      storiesData.push(data);
+      data.setup(storyParams);
+      app.use(data.path, data.router);
+    }
+  });
+
+  if (params.sync ?? false) {
+    for (const model of Object.values(db.models)) {
+      // Avoid issues like https://github.com/sequelize/sequelize/issues/12889
+      try {
+        await model.sync();
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+  }
+
+  if (params.storyRouters) {
+    const stories = [
+      "carina", "blaze-star-nova", "radwave-in-motion",
+      "radwave-in-motion-deutsch", "jwst-brick",
+      "pinwheel-supernova", "green-comet", "annular-eclipse-2023",
+      "rubin-first-look", "tempo-lab",
+    ];
+    stories.forEach(story => {
+      const router = storyRouter(story);
+      app.use(`/${story}`, router);
+    });
+  }
+
+  setupSwaggerDocs(app);
+  setupRoutes(app, { sendEmails: params.sendEmails ?? true });
+  storiesData.forEach(data => data.createEndpoints(data.router));
+
+  return app;
 }

@@ -69,7 +69,7 @@ import {
 import { CosmicDSSession, StudentsClasses, Class, IgnoreStudent, ClassStories } from "./models";
 
 import { ParsedQs } from "qs";
-import express, { Express, Request, Response as ExpressResponse } from "express";
+import { Express, Request, Response as ExpressResponse } from "express";
 import { Response } from "express-serve-static-core";
 import session from "express-session";
 import jwt from "jsonwebtoken";
@@ -131,13 +131,6 @@ function _sendLoginCookie(userId: number, res: ExpressResponse, secret: string):
 export interface AppOptions {
   sendEmails?: boolean;
 }
-
-export function createApp(db: Sequelize): Express {
-  const app = express();
-  setupApp(app, db);
-  return app;
-}
-
 
 export function setupRoutes(app: Express, options?: AppOptions) {
 

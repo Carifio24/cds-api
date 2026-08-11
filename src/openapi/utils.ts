@@ -164,7 +164,6 @@ export function setupSwaggerDocs(app: Express) {
     });
 
     if (process.env.NODE_ENV === "test") {
-      console.info("SETTING UP MIDDLEWARE");
       router.use(
         openApiValidatorMiddleware({
           apiSpec: swaggerSpec as OpenAPIV3.DocumentV3_1,
