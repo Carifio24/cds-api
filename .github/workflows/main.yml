@@ -38,6 +38,7 @@ jobs:
           DB_TEST_USERNAME: root
           DB_TEST_PASSWORD: root
           CDS_API_KEY: TEST_API_KEY
+          NODE_ENV: test
         run: npm run test
 
       - name: Check OpenAPI specs
