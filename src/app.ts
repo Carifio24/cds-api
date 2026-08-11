@@ -123,10 +123,6 @@ export function setupApp(app: Express, db: Sequelize) {
       ],
     },
   };
-  console.log("SCHEMAS");
-  console.log(JSON.stringify(schemas()["Student"], null, 2));
-  console.log(JSON.stringify(schemas()["Class"], null, 2));
-  console.log(JSON.stringify(schemas()["Educator"], null, 2));
 
   registerSwaggerDocs({
     router: app,

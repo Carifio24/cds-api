@@ -294,10 +294,7 @@ describe("Test stage state routes", () => {
         .expect(404)
         .expect("Content-Type", /json/)
         .expect({
-          student_id: dataToUse.studentID,
-          story_name: dataToUse.storyName,
-          stage_name: dataToUse.stage,
-          state: null,
+          error: `No stage exists for the student ID/story name/stage name combination ${dataToUse.studentID}/${dataToUse.storyName}/${dataToUse.stage}`, 
         });
     }
 

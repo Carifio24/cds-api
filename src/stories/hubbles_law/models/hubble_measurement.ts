@@ -94,12 +94,12 @@ export function initializeHubbleMeasurementModel(sequelize: Sequelize) {
     brightness: {
       type: DataTypes.FLOAT,
       allowNull: false,
-      defaultValue: 1
+      defaultValue: 1,
     },
     last_modified: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP")
+      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
     }
   }, {
     sequelize,

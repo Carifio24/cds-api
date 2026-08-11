@@ -1587,26 +1587,35 @@ export function createEndpoints(router: Router) {
    *          content:
    *            application/json:
    *              schema:
-   *                type: object
-   *                properties:
-   *                  measurements:
-   *                    type: array
-   *                    items:
-   *                      oneOf:
-   *                        - $ref: "#/components/schemas/HubbleMeasurement"
-   *                        - $ref: "#/components/schemas/MinimalHubbleMeasurement"
-   *                  studentData:
-   *                    type: array
-   *                    items:
-   *                      oneOf:
-   *                        - $ref: "#/components/schemas/HubbleStudentData"
-   *                        - $ref: "#/components/schemas/MinimalHubbleStudentData"
-   *                  classData:
-   *                    type: array
-   *                    items:
-   *                      oneOf:
-   *                        - $ref: "#/components/schemas/HubbleClassData"
-   *                        - $ref: "#/components/schemas/MinimalHubbleClassData"
+   *                anyOf:
+   *                  - type: object
+   *                    properties:
+   *                      measurements:
+   *                        type: array
+   *                        items:
+   *                          $ref: "#/components/schemas/HubbleMeasurement"
+   *                      studentData:
+   *                        type: array
+   *                        items:
+   *                          $ref: "#/components/schemas/HubbleStudentData"
+   *                      classData:
+   *                        type: array
+   *                        items:
+   *                          $ref: "#/components/schemas/HubbleClassData"
+   *                  - type: object
+   *                    properties:
+   *                      measurements:
+   *                        type: array
+   *                        items:
+   *                          $ref: "#/components/schemas/MinimalHubbleMeasurement"
+   *                      studentData:
+   *                        type: array
+   *                        items:
+   *                          $ref: "#/components/schemas/MinimalHubbleStudentData"
+   *                      classData:
+   *                        type: array
+   *                        items:
+   *                          $ref: "#/components/schemas/MinimalHubbleClassData"
    */
   router.get("/all-data", async (req, res) => {
     const minimal = (req.query?.minimal as string)?.toLowerCase() === "true";
@@ -1625,7 +1634,6 @@ export function createEndpoints(router: Router) {
         getAllHubbleStudentData([...classIDs], minimal),
       ]);
 
-    console.log(convertAllDatesToString(studentData[0]));
     res.json({
       measurements: convertAllDatesToString(measurements),
       studentData: convertAllDatesToString(studentData),

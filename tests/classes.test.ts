@@ -75,8 +75,7 @@ describe("Test class routes", () => {
       .expect(404)
       .expect("Content-Type", /json/)
       .then((res) => {
-        expect(res.body.class).toBeNull();
-        expect(res.body.size).toEqual(0);
+        expect(res.body.error).toEqual(`No class found with identifier ${badID}`);
       });
   });
 

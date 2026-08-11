@@ -21,7 +21,6 @@ function typeInfoForAttribute<M extends Model>(attribute: ModelAttributeColumnOp
       enum: attribute.values
     };
   }
-
   if (type == DataTypes.DATE.key) {
     return {
       type: "string", 
@@ -48,6 +47,12 @@ function typeInfoForAttribute<M extends Model>(attribute: ModelAttributeColumnOp
     return {
       type: "integer", 
       format: "int64" 
+    };
+  }
+
+  if (type == DataTypes.FLOAT.key) {
+    return {
+      type: "number",
     };
   }
 
@@ -167,6 +172,8 @@ export function setupSwaggerDocs(app: Express) {
           validateResponses: {
             onError: (error, _json) => {
               console.log("OPENAPI ERROR");
+              console.error(error.message);
+              console.error(error.errors);
               throw new Error(error.message);
             },
           },

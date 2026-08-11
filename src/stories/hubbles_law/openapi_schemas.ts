@@ -82,14 +82,22 @@ const minimalGalaxy = {
   },
 };
 
+
+
 export function schemas(): Schemas {
+  const studentData = modelToSchema(HubbleStudentData);
+  studentData.properties.class_id = { type: ["integer", "null"] };
+
+  const measurement = modelToSchema(HubbleMeasurement);
+  measurement.properties.class_id = { type: ["integer", "null"] };
+
   return {
     ...baseSchemas(),
     Galaxy: modelToSchema(Galaxy),
-    HubbleStudentData: modelToSchema(HubbleStudentData),
+    HubbleStudentData: studentData,
     HubbleClassData: modelToSchema(HubbleClassData),
     HubbleMeasurementInput: measurementInput,
-    HubbleMeasurement: modelToSchema(HubbleMeasurement),
+    HubbleMeasurement: measurement,
     HubbleSampleMeasurementInput: sampleMeasurementInput,
     HubbleSampleMeasurement: modelToSchema(SampleHubbleMeasurement),
     MinimalHubbleMeasurement: minimalMeasurement,

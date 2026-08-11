@@ -1870,11 +1870,9 @@ export function setupRoutes(app: Express, options?: AppOptions) {
    *              schema:
    *                oneOf:
    *                  - type: object
-   *                    additionalProperties:
-   *                      $ref: "#/components/schemas/StageState"
    *                  - type: array
    *                    items:
-   *                      $ref: "#/components/schemas/StageState"
+   *                      type: object
    *        400:
    *          description: Neither a student nor class ID is given
    *          content:
@@ -1981,17 +1979,7 @@ export function setupRoutes(app: Express, options?: AppOptions) {
    *          content:
    *            application/json:
    *              schema:
-   *                type: object
-   *                properties:
-   *                  student_id:
-   *                    type: integer
-   *                  story_name:
-   *                    type: string
-   *                  stage_name:
-   *                    type: string
-   *                  state:
-   *                    schema:
-   *                      $ref: null
+   *                $ref: "#/components/schemas/Error"
    */
   app.get("/stage-state/:studentID/:storyName/:stageName", async (req, res) => {
     const params = req.params;
@@ -1999,12 +1987,19 @@ export function setupRoutes(app: Express, options?: AppOptions) {
     const storyName = params.storyName;
     const stageName = params.stageName;
     const state = await getStudentStageState(studentID, storyName, stageName);
-    const status = state !== null ? 200 : 404;
-    res.status(status).json({
+
+    if (state === null) {
+      res.status(404).json({
+        error: `No stage exists for the student ID/story name/stage name combination ${studentID}/${storyName}/${stageName}`,
+      });
+      return;
+    }
+
+    res.json({
       student_id: studentID,
       story_name: storyName,
       stage_name: stageName,
-      state
+      state,
     });
   });
 
