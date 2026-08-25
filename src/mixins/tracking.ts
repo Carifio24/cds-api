@@ -16,7 +16,7 @@ export function addDataTracking<A,I>(
   options: AddDataTrackingOptions<A,I>
 ) {
 
-  const entrySchema = S.extend(options.dataSchema, S.struct({ user_uuid: S.string });
+  const entrySchema = S.extend(options.dataSchema, S.struct({ user_uuid: S.string }));
   const path = options.dataPath ?? "/data";
 
   router.put(path, async (req, res) => {
@@ -83,4 +83,6 @@ export function addDataTracking<A,I>(
     }
     res.json(response);
   });
+
+  return router;
 }

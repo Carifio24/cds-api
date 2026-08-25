@@ -37,4 +37,6 @@ export function addVisit(router: Router, options: AddVisitOptions) {
       });
     }
   });
+
+  return router;
 }
