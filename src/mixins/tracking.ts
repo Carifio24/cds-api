@@ -2,8 +2,9 @@ import * as Either from "effect/Either";
 import type { Simplify } from "effect/Types";
 import * as S from "@effect/schema/Schema";
 import type { Router } from "express";
+import { BaseTrackingData } from "../models/tracking_data_base";
 
-export interface AddDataTrackingOptions<Data> {
+export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>> {
   dataSchema: S.Schema<Data, Data, never>;
   submitter: (data: Simplify<Data & { readonly user_uuid: string }>) => Promise<void>;
   getter: (id: string) => Promise<Data>;
@@ -11,7 +12,7 @@ export interface AddDataTrackingOptions<Data> {
   dataPath?: string;
 }
 
-export function addDataTracking<Data>(
+export function addDataTracking<Data extends BaseTrackingData<Data>>(
   router: Router,
   options: AddDataTrackingOptions<Data>
 ) {
