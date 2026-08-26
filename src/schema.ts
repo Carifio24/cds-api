@@ -54,14 +54,22 @@ function schemaForAttribute<M extends Model>(attribute: ModelAttributeColumnOpti
   return null;
 }
 
+
+/**
+ * JC notes:
+ * The typing here is admittedly a bit hairy!
+ * I came up with these types by basically just looking at the typing inside of `effect`
+ * and seeing how they handle generating the correct typing for structs.
+ * The end result here is quite nice though!
+ * The struct returned from `modelToEffectSchema` will give us a completely type-aware
+ * schema that we can generate automatically from the Sequelize model. No need to maintain
+ * two separate definitions!
+ */
 type AttributeEffectSchema<P> = S.Schema<P | undefined, P | undefined, never>;
 type AttributeEffectSignature<P> = S.PropertySignature<P | undefined, true, P | undefined, true>
 type AttributeEffect<P> = AttributeEffectSchema<P> | AttributeEffectSignature<P>;
-type ModelEffect<M extends Model> = {
-  [K in NonConstructorKeys<M>]: AttributeEffect<M[K]>
-};
+type ModelEffect<M extends Model> = { [K in NonConstructorKeys<M>]: AttributeEffect<M[K]> };
 type ModelEffectSchema<M extends Model> = S.Schema<Simplify<S.ToStruct<ModelEffect<M>>>, Simplify<S.FromStruct<ModelEffect<M>>>, S.Schema.Context<ModelEffect<M>[NonConstructorKeys<M>]>>;
-
 
 export function modelToEffectSchema<M extends Model>(modelType: ModelStatic<M>): ModelEffectSchema<M> {
   const structOptions = {} as { [K in NonConstructorKeys<M>]: AttributeEffect<M[K]> };
