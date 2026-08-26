@@ -1,7 +1,8 @@
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes } from "sequelize";
+import { Sequelize, DataTypes } from "sequelize";
 import { Class, Student } from "../../../models";
+import { ModelBase } from "../../../utils";
 
-export class HubbleClassStudentMerge extends Model<InferAttributes<HubbleClassStudentMerge>, InferCreationAttributes<HubbleClassStudentMerge>> {
+export class HubbleClassStudentMerge extends ModelBase<HubbleClassStudentMerge> {
   declare student_id: number;
   declare class_id: number;
 }

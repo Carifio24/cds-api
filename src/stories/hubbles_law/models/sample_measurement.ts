@@ -1,8 +1,9 @@
 import { Galaxy } from "./galaxy";
 import { Student } from "../../../models";
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
+import { Sequelize, DataTypes, CreationOptional } from "sequelize";
+import { ModelBase } from "../../../utils";
 
-export class SampleHubbleMeasurement extends Model<InferAttributes<SampleHubbleMeasurement>, InferCreationAttributes<SampleHubbleMeasurement>> {
+export class SampleHubbleMeasurement extends ModelBase<SampleHubbleMeasurement> {
   declare student_id: number;
   declare galaxy_id: number;
 

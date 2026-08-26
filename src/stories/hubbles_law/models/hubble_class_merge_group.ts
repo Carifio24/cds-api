@@ -1,7 +1,8 @@
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes } from "sequelize";
+import { Sequelize, DataTypes } from "sequelize";
 import { Class } from "../../../models";
+import { ModelBase } from "../../../utils";
 
-export class HubbleClassMergeGroup extends Model<InferAttributes<HubbleClassMergeGroup>, InferCreationAttributes<HubbleClassMergeGroup>> {
+export class HubbleClassMergeGroup extends ModelBase<HubbleClassMergeGroup> {
   declare group_id: number;
   declare class_id: number;
   declare merge_order: number;
