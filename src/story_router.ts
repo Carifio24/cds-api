@@ -13,7 +13,7 @@ export interface StoryRouterOptions<Data> {
 export function storyRouter<Data>(options: StoryRouterOptions<Data>): Router {
   const router = Router();
 
-  if (options.userExperience ?? true) {
+  if (options.userExperience) {
     addUserExperience(router, options);
   }
   if (options.dataTracking) {
