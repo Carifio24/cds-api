@@ -8,7 +8,7 @@ import { addVisitForStory } from "../../database";
 import { TempoLiteEntry, TempoLiteUpdate, getTempoLiteData, submitTempoLiteData, updateTempoLiteData } from "./database";
 import { storyRouter } from "../../story_router";
 
-export const router = storyRouter("tempo-lite");
+export const router = storyRouter({ storyName: "tempo-lite" });
 
 export function setup(_app: Express, db: Sequelize) {
   initializeModels(db);

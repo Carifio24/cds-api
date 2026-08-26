@@ -3,17 +3,17 @@ import type { Simplify } from "effect/Types";
 import * as S from "@effect/schema/Schema";
 import type { Router } from "express";
 
-export interface AddDataTrackingOptions<A,I> {
-  dataSchema: S.Schema<A,I,never>;
-  submitter: (data: Simplify<A & { readonly user_uuid: string }>) => Promise<void>;
-  getter: (id: string) => Promise<A>;
-  updater: (id: string, data: A) => Promise<A | null>;
+export interface AddDataTrackingOptions<Data> {
+  dataSchema: S.Schema<Data, Data, never>;
+  submitter: (data: Simplify<Data & { readonly user_uuid: string }>) => Promise<void>;
+  getter: (id: string) => Promise<Data>;
+  updater: (id: string, data: Data) => Promise<Data | null>;
   dataPath?: string;
 };
 
-export function addDataTracking<A,I>(
+export function addDataTracking<Data>(
   router: Router,
-  options: AddDataTrackingOptions<A,I>
+  options: AddDataTrackingOptions<Data>
 ) {
 
   const entrySchema = S.extend(options.dataSchema, S.struct({ user_uuid: S.string }));

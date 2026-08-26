@@ -13,7 +13,7 @@ import {
 import { initializeModels } from "./models";
 import { storyRouter } from "../../story_router";
 
-export const router = storyRouter("planet-parade");
+export const router = storyRouter({ storyName: "planet-parade" });
 
 export function setup(_app: Express, db: Sequelize) {
   initializeModels(db);
