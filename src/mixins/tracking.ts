@@ -9,7 +9,7 @@ export interface AddDataTrackingOptions<Data> {
   getter: (id: string) => Promise<Data>;
   updater: (id: string, data: Data) => Promise<Data | null>;
   dataPath?: string;
-};
+}
 
 export function addDataTracking<Data>(
   router: Router,
