@@ -1,6 +1,7 @@
 import * as S from "@effect/schema/Schema";
 import type { CreationAttributes } from "sequelize";
 
+import { logger } from "../../logger";
 import { createEntrySchema, modelToEffectSchema } from "../../schema";
 import { WhyRomanData } from "./models/why_roman_data";
 import { UpdateAttributes } from "../../utils";
@@ -11,6 +12,11 @@ export const WhyRomanEntry = createEntrySchema(WhyRomanUpdate);
 
 export type WhyRomanUpdateT = S.Schema.To<typeof WhyRomanUpdate>;
 export type WhyRomanEntryT = S.Schema.To<typeof WhyRomanEntry>;
+
+export async function submitWhyRomanData(data: WhyRomanEntryT): Promise<WhyRomanData | null> {
+  logger.verbose(`Attempting to submit why-roman data for user ${data.user_uuid}`);
+  return WhyRomanData.upsert(data).then(([item, _]) => item);
+}
 
 export async function getAllWhyRomanData(): Promise<WhyRomanData[]> {
   return WhyRomanData.findAll();

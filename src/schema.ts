@@ -3,6 +3,10 @@ import type { Simplify } from "effect/Types";
 import { DataTypes, ModelAttributeColumnOptions, ModelStatic, type Model } from "sequelize";
 
 
+// Stolen from the Sequelize type definitions
+type NonConstructorKeys<T> = ({[P in keyof T]: T[P] extends new () => any ? never : P })[keyof T];
+type NonConstructor<T> = Pick<T, NonConstructorKeys<T>>;
+
 export type EntryType<UpdateType> = Simplify<UpdateType & { readonly user_uuid: string }>;
 
 export function createEntrySchema<T>(dataSchema: S.Schema<T,T,never>): S.Schema<EntryType<T>, EntryType<T>, never> {
@@ -50,18 +54,27 @@ function schemaForAttribute<M extends Model>(attribute: ModelAttributeColumnOpti
   return null;
 }
 
-export function modelToEffectSchema<M extends Model>(modelType: ModelStatic<M>): S.Schema<any,any,never> {
-  const structOptions: Record<string, S.Schema<any,any,never>> = {};
+type AttributeEffectSchema<P> = S.Schema<P | undefined, P | undefined, never>;
+type AttributeEffectSignature<P> = S.PropertySignature<P | undefined, true, P | undefined, true>
+type AttributeEffect<P> = AttributeEffectSchema<P> | AttributeEffectSignature<P>;
+type ModelEffect<M extends Model> = {
+  [K in NonConstructorKeys<M>]: AttributeEffect<M[K]>
+};
+type ModelEffectSchema<M extends Model> = S.Schema<Simplify<S.ToStruct<ModelEffect<M>>>, Simplify<S.FromStruct<ModelEffect<M>>>, S.Schema.Context<ModelEffect<M>[NonConstructorKeys<M>]>>;
+
+
+export function modelToEffectSchema<M extends Model>(modelType: ModelStatic<M>): ModelEffectSchema<M> {
+  const structOptions = {} as { [K in NonConstructorKeys<M>]: AttributeEffect<M[K]> };
   const attributes = modelType.getAttributes();
-  Object.entries(attributes).forEach(([key, attr]) => {
-    let schema: S.Schema<any,any,never> | null = schemaForAttribute(attr);
+  Object.entries(attributes).forEach(entry => {
+    const key = entry[0] as NonConstructorKeys<M>;
+    const attr = entry[1];
+    let schema = schemaForAttribute(attr) as AttributeEffectSchema<M[typeof key]> | null;
     if (!schema) {
       return;
     }
-    if (attr.allowNull) {
-      schema = S.nullish(schema);
-    }
-    structOptions[key] = schema;
+    const item = attr.defaultValue !== undefined ? S.optional(schema) : schema;
+    structOptions[key] = item;
   });
 
   return S.struct(structOptions);

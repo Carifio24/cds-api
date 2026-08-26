@@ -9,6 +9,7 @@ import type { EntryType } from "../schema";
 export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>> {
   dataSchema: S.Schema<Data, Data, never>;
   submitter: (data: EntryType<Data>) => Promise<void>;
+  allGetter: () => Promise<Data[]>;
   getter: (id: string) => Promise<Data>;
   updater: (id: string, data: Data) => Promise<Data | null>;
   dataPath?: string;
@@ -42,6 +43,11 @@ export function addDataTracking<Data extends BaseTrackingData<Data>>(
     }
 
     res.json(response);
+  });
+
+  router.get(path, async (_req, res) => {
+    const data = await options.allGetter();
+    res.json(data); 
   });
 
   router.get(`${path}/:uuid`, async (req, res) => {
