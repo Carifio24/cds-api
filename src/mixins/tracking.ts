@@ -1,12 +1,14 @@
 import * as Either from "effect/Either";
-import type { Simplify } from "effect/Types";
 import * as S from "@effect/schema/Schema";
 import type { Router } from "express";
-import { BaseTrackingData } from "../models/tracking_data_base";
+
+import { BaseTrackingData } from "../models/base_tracking_data";
+import type { EntryType } from "../schema";
+
 
 export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>> {
   dataSchema: S.Schema<Data, Data, never>;
-  submitter: (data: Simplify<Data & { readonly user_uuid: string }>) => Promise<void>;
+  submitter: (data: EntryType<Data>) => Promise<void>;
   getter: (id: string) => Promise<Data>;
   updater: (id: string, data: Data) => Promise<Data | null>;
   dataPath?: string;
