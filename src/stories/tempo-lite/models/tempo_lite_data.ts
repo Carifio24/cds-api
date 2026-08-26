@@ -1,6 +1,7 @@
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
+import { Sequelize, DataTypes, CreationOptional } from "sequelize";
+import { ModelBase } from "../../../utils";
 
-export class TempoLiteData extends Model<InferAttributes<TempoLiteData>, InferCreationAttributes<TempoLiteData>> {
+export class TempoLiteData extends ModelBase<TempoLiteData> {
   declare id: CreationOptional<number>;
   declare user_uuid: string;
   declare user_selected_calendar_dates: CreationOptional<number[]>;

@@ -1,7 +1,8 @@
 import { Class } from "../../../models";
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
+import { Sequelize, DataTypes, CreationOptional } from "sequelize";
+import { ModelBase } from "../../../utils";
 
-export class HubbleWaitingRoomOverride extends Model<InferAttributes<HubbleWaitingRoomOverride>, InferCreationAttributes<HubbleWaitingRoomOverride>> {
+export class HubbleWaitingRoomOverride extends ModelBase<HubbleWaitingRoomOverride> {
   declare class_id: number;
   declare timestamp: CreationOptional<Date>;
 }

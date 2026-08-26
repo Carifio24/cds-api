@@ -3,7 +3,7 @@ import { enc, SHA256 } from "crypto-js";
 import { v5 } from "uuid";
 
 import * as S from "@effect/schema/Schema";
-import { CreationAttributes, Model } from "sequelize";
+import { CreationAttributes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 
 import { ParsedQs } from "qs";
 import { Request } from "express";
@@ -19,6 +19,8 @@ export const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED
 export type GenericRequest = Request<{}, any, any, ParsedQs, Record<string, any>>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type GenericResponse = Response<any, Record<string, any>, number>;
+
+export class ModelBase<T extends Model> extends Model<InferAttributes<T>, InferCreationAttributes<T>> {}
 
 // This type describes objects that we're allowed to pass to a model's `update` method
 export type UpdateAttributes<M extends Model> = Parameters<M["update"]>[0];

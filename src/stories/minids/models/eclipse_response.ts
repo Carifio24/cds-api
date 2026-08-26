@@ -1,6 +1,7 @@
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
+import { Sequelize, DataTypes, CreationOptional } from "sequelize";
+import { ModelBase } from "../../../utils";
 
-export class EclipseMiniResponse extends Model<InferAttributes<EclipseMiniResponse>, InferCreationAttributes<EclipseMiniResponse>> {
+export class EclipseMiniResponse extends ModelBase<EclipseMiniResponse> {
   declare id: CreationOptional<number>;
   declare user_uuid: string;
   declare mc_responses: string[];

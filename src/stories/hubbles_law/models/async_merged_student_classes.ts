@@ -1,7 +1,8 @@
 import { Class, Student } from "../../../models";
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
+import { Sequelize, DataTypes, CreationOptional } from "sequelize";
+import { ModelBase } from "../../../utils";
 
-export class AsyncMergedHubbleStudentClasses extends Model<InferAttributes<AsyncMergedHubbleStudentClasses>, InferCreationAttributes<AsyncMergedHubbleStudentClasses>> {
+export class AsyncMergedHubbleStudentClasses extends ModelBase<AsyncMergedHubbleStudentClasses> {
   declare student_id: number;
   declare class_id: number | null;
   declare merged_class_id: number;

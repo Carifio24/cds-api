@@ -1,7 +1,8 @@
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes } from "sequelize";
+import { Sequelize, DataTypes } from "sequelize";
 import { Class } from "../../../models";
+import { ModelBase } from "../../../utils";
 
-export class HubbleClassData extends Model<InferAttributes<HubbleClassData>, InferCreationAttributes<HubbleClassData>> {
+export class HubbleClassData extends ModelBase<HubbleClassData> {
   declare class_id: number;
   declare hubble_fit_value: number;
   declare hubble_fit_unit: string;

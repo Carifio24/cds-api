@@ -1,6 +1,7 @@
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
+import { Sequelize, DataTypes, CreationOptional } from "sequelize";
+import { ModelBase } from "../../../utils";
 
-export class Galaxy extends Model<InferAttributes<Galaxy>, InferCreationAttributes<Galaxy>> {
+export class Galaxy extends ModelBase<Galaxy> {
   declare id: CreationOptional<number>;
   declare name: string;
   declare ra: number;

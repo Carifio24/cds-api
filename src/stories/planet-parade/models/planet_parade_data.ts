@@ -1,6 +1,7 @@
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
+import { Sequelize, DataTypes, CreationOptional } from "sequelize";
+import { ModelBase } from "../../../utils";
 
-export class PlanetParadeData extends Model<InferAttributes<PlanetParadeData>, InferCreationAttributes<PlanetParadeData>> {
+export class PlanetParadeData extends ModelBase<PlanetParadeData> {
   declare id: CreationOptional<number>;
   declare user_uuid: string;
   declare user_selected_search_locations: [number, number][];

@@ -1,6 +1,7 @@
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
+import { Sequelize, DataTypes, CreationOptional } from "sequelize";
+import { ModelBase } from "../../../utils";
 
-export class SeasonsData extends Model<InferAttributes<SeasonsData>, InferCreationAttributes<SeasonsData>> {
+export class SeasonsData extends ModelBase<SeasonsData> {
   declare id: CreationOptional<number>;
   declare user_uuid: string;
   declare user_selected_dates: CreationOptional<string[]>;

@@ -1,6 +1,7 @@
-import { Sequelize, DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
+import { Sequelize, DataTypes, CreationOptional } from "sequelize";
+import { ModelBase } from "../../../utils";
 
-export class SolarEclipse2024Data extends Model<InferAttributes<SolarEclipse2024Data>, InferCreationAttributes<SolarEclipse2024Data>> {
+export class SolarEclipse2024Data extends ModelBase<SolarEclipse2024Data> {
   declare id: CreationOptional<number>;
   declare user_uuid: string;
   declare user_selected_locations: [number, number][];
