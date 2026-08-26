@@ -44,7 +44,7 @@ const stories = [
   "rubin-first-look", "tempo-lab",
 ];
 stories.forEach(story => {
-  const router = storyRouter(story);
+  const router = storyRouter({ storyName: story });
   app.use(`/${story}`, router);
 });
 

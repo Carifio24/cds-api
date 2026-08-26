@@ -12,7 +12,10 @@ import {
 import { initializeModels } from "./models";
 import { storyRouter } from "../../story_router";
 
-export const router = storyRouter("solar-eclipse-2026");
+export const router = storyRouter({
+  storyName: "solar-eclipse-2026",
+  userExperience: true,
+});
 
 export function setup(_app: Express, db: Sequelize) {
   initializeModels(db);
