@@ -43,7 +43,15 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
   const countKeys = [
     "tour_restarted_count",
     "zoom_to_pixel_scale_count",
+    "side_controls_opened_count",
     "app_time_ms",
+    "about_roman_time_ms",
+    "user_guide_time_ms",
+    "control_time_open_ms",
+    "slider_min_press_count",
+    "slider_max_press_count",
+    "slider_label_press_count",
+    "slider_move_count",
   ] as const;
 
   for (const key of countKeys) {
