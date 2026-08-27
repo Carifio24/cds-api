@@ -1,9 +1,6 @@
 import * as S from "@effect/schema/Schema";
-import { Simplify } from "effect/Types";
 import { DataTypes, InferCreationAttributes, ModelAttributeColumnOptions, ModelStatic, type Model } from "sequelize";
 import { BaseTrackingData } from "./models/base_tracking_data";
-
-const USER_UUID_KEY = "user_uuid" as const;
 
 /**
  * JC notes:
@@ -19,12 +16,10 @@ const USER_UUID_KEY = "user_uuid" as const;
 type AttributeEffectSchema<P> = S.Schema<P | undefined>;
 type AttributeEffectSignature<P> = S.PropertySignature<P | undefined, true, P | undefined, true>
 type AttributeEffect<P> = AttributeEffectSchema<P> | AttributeEffectSignature<P>;
-type ModelEffect<M extends Model> = { [K in keyof InferCreationAttributes<M>]: InferCreationAttributes<M>[K] extends readonly unknown[] ? Readonly<InferCreationAttributes<M>[K]> : InferCreationAttributes<M>[K] };
+type ModelEffect<M extends Model> = { [K in keyof InferCreationAttributes<M>]: InferCreationAttributes<M>[K] };
 // type _ModelEffectSchemaWithContext<M extends Model> = S.Schema<Simplify<S.ToStruct<ModelEffect<M>>>, Simplify<S.FromStruct<ModelEffect<M>>>, S.Schema.Context<ModelEffect<M>[keyof InferCreationAttributes<M>]>>;
 // export type ModelEffectSchema<M extends Model> = S.Schema<Simplify<S.ToStruct<ModelEffect<M>>>, Simplify<S.FromStruct<ModelEffect<M>>>, never>;
 export type ModelEffectSchema<M extends Model> = S.Schema<ModelEffect<M>>;
-
-type UUIDRemoved<M extends Model> = Omit<M, typeof USER_UUID_KEY>;
 
 export function modelToEffectSchema<M extends Model>(modelType: ModelStatic<M>): ModelEffectSchema<M> {
 
@@ -37,7 +32,11 @@ export function modelToEffectSchema<M extends Model>(modelType: ModelStatic<M>):
     if (!schema) {
       return;
     }
-    const item = attr.defaultValue !== undefined ? S.optional(schema) : schema;
+    const optional = 
+      attr.allowNull ||
+      attr.defaultValue !== undefined ||
+      attr.autoIncrement;
+    const item = optional ? S.optional(schema) : schema;
     structOptions[key] = item;
   });
   

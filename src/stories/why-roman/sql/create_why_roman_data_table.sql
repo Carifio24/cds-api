@@ -1,10 +1,11 @@
 CREATE TABLE WhyRomanData (
-    id int(11) UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,
+    id INT UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,
     user_uuid varchar(36) NOT NULL UNIQUE,
-    app_time_ms int(11) UNSIGNED NOT NULL DEFAULT 0,
-    max_andromeda_step TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-    scales_selected JSON NOT NULL DEFAULT (JSON_ARRAY()),
-    tour_restarted_count int(11) UNSIGNED NOT NULL DEFAULT 0,
+    app_time_ms INT UNSIGNED NOT NULL DEFAULT 0,
+    max_andromeda_step TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    tour_restarted_count INT UNSIGNED NOT NULL DEFAULT 0,
+    zoom_to_pixel_scale_count INT UNSIGNED NOT NULL DEFAULT 0,
+    footprints_toggle_count JSON NOT NULL DEFAULT ((JSON_OBJECT())),
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

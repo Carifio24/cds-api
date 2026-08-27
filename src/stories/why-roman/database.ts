@@ -2,16 +2,13 @@ import * as S from "@effect/schema/Schema";
 import type { CreationAttributes } from "sequelize";
 
 import { logger } from "../../logger";
-import { modelToEffectSchema } from "../../schema";
+import { ModelEffectSchema } from "../../schema";
 import { WhyRomanData } from "./models/why_roman_data";
 import { UpdateAttributes } from "../../utils";
 
 
-export const WhyRomanEntry = modelToEffectSchema(WhyRomanData);
-export const WhyRomanUpdate = WhyRomanEntry.pipe(S.omit("user_uuid"));
-
-export type WhyRomanUpdateT = S.Schema.To<typeof WhyRomanUpdate>;
-export type WhyRomanEntryT = S.Schema.To<typeof WhyRomanEntry>;
+type WhyRomanEntryT = S.Schema.To<ModelEffectSchema<WhyRomanData>>;
+type WhyRomanUpdateT = Omit<WhyRomanEntryT, "user_uuid">;
 
 export async function submitWhyRomanData(data: WhyRomanEntryT): Promise<WhyRomanData | null> {
   logger.verbose(`Attempting to submit why-roman data for user ${data.user_uuid}`);
@@ -43,13 +40,17 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
     dbUpdate.max_andromeda_step = Math.max(data.max_andromeda_step, update.max_andromeda_step);
   }
 
-  if (update.scales_selected) {
-    const selected = data.scales_selected.concat(update.scales_selected);
-    dbUpdate.scales_selected = selected;
-  }
+  const countKeys = [
+    "tour_restarted_count",
+    "zoom_to_pixel_scale_count",
+    "app_time_ms",
+  ] as const;
 
-  if (update.tour_restarted_count) {
-    dbUpdate.tour_restarted_count = data.tour_restarted_count + update.tour_restarted_count;
+  for (const key of countKeys) {
+    const delta = update[key];
+    if (delta) {
+      dbUpdate[key] = data[key] + delta;
+    }
   }
 
   return data.update(dbUpdate).catch(_err => null);

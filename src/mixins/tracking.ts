@@ -1,31 +1,34 @@
 import * as Either from "effect/Either";
 import * as S from "@effect/schema/Schema";
+import type { Simplify } from "effect/Types";
+import { parseError } from "@effect/schema/ParseResult";
 import type { Router } from "express";
-import type { ModelStatic } from "sequelize";
+import type { InferCreationAttributes, ModelStatic } from "sequelize";
 
 import { BaseTrackingData } from "../models/base_tracking_data";
 import { modelToEffectSchema, type ModelEffectSchema } from "../schema";
 
 type AllGetter<Data> = () => Promise<Data[]>;
 type Getter<Data extends BaseTrackingData<Data>> = (id: string) => Promise<Data | null>;
+type UpdateType<Data extends BaseTrackingData<Data>> = Simplify<Omit<InferCreationAttributes<Data>, "user_uuid">>;
 
-export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>, Update> {
-  updateSchema: S.Schema<Update>;
+export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>> {
   model: ModelStatic<Data>;
   submitter: (data: S.Schema.To<ModelEffectSchema<Data>>) => Promise<Data | null>;
   allGetter?: AllGetter<Data>;
   getter: Getter<Data>;
-  updater: (id: string, data: Update) => Promise<Data | null>;
+  updater: (id: string, data: UpdateType<Data>) => Promise<Data | null>;
   dataPath?: string;
 }
 
-export function addDataTracking<Data extends BaseTrackingData<Data>, Update>(
+export function addDataTracking<Data extends BaseTrackingData<Data>>(
   router: Router,
-  options: AddDataTrackingOptions<Data, Update>
+  options: AddDataTrackingOptions<Data>
 ) {
 
   const path = options.dataPath ?? "/data";
   const dataSchema = modelToEffectSchema(options.model);
+  const updateSchema = dataSchema.pipe(S.omit("user_uuid" as keyof InferCreationAttributes<Data>));
 
   router.put(path, async (req, res) => {
     const data = req.body;
@@ -33,7 +36,7 @@ export function addDataTracking<Data extends BaseTrackingData<Data>, Update>(
 
     if (Either.isLeft(maybe)) {
       res.status(400).json({
-        error: `Malformed data submission: ${maybe.left.error}`,
+        error: `Malformed data submission: ${parseError(maybe.left.error).toString()}`,
       });
       return;
     }
@@ -71,10 +74,10 @@ export function addDataTracking<Data extends BaseTrackingData<Data>, Update>(
   router.patch(`${path}/:uuid`, async (req, res) => {
     const data = req.body;
 
-    const maybe = S.decodeUnknownEither(options.updateSchema)(data);
+    const maybe = S.decodeUnknownEither(updateSchema)(data);
     if (Either.isLeft(maybe)) {
       res.status(400).json({
-        error: `Malformed update submission: ${maybe.left.error}`,
+        error: `Malformed updatesubmission: ${parseError(maybe.left.error).toString()}`,
       });
       return;
     }
@@ -88,7 +91,6 @@ export function addDataTracking<Data extends BaseTrackingData<Data>, Update>(
       return;
     }
 
-    const x = maybe.right;
     const response = await options.updater(uuid, maybe.right);
     if (response === null) {
       res.status(500).json({
