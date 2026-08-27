@@ -7,6 +7,7 @@ export class BaseTrackingData<M extends Model> extends ModelBase<M> {
   declare app_time_ms: CreationOptional<number>;
   declare created: CreationOptional<Date>;
   declare last_updated: CreationOptional<Date>;
+  declare test: CreationOptional<boolean>;
 
   static readonly ATTRIBUTES = {
     id: {
@@ -35,5 +36,10 @@ export class BaseTrackingData<M extends Model> extends ModelBase<M> {
       allowNull: false,
       defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
     },
+    test: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    }
   };
 }

@@ -2,7 +2,7 @@ import * as Either from "effect/Either";
 import * as S from "@effect/schema/Schema";
 import type { Simplify } from "effect/Types";
 import { parseError } from "@effect/schema/ParseResult";
-import type { Router } from "express";
+import type { Request, Router } from "express";
 import type { InferCreationAttributes, ModelStatic } from "sequelize";
 
 import { BaseTrackingData } from "../models/base_tracking_data";
@@ -21,6 +21,31 @@ export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>> {
   dataPath?: string;
 }
 
+function getDomainFromUrl(url: string): string | null {
+  const regex = /^(?:https?:\/\/)?(?:www\.)?([^\/\s]+)/i;
+  const match = url.match(regex);
+  return match ? match[1] : null; 
+}
+
+function isTestRequest(request: Request): boolean {
+  const headers = request.headers;
+  const url = headers.origin || headers.referer;
+  if (!url) {
+    return true;
+  }
+
+  const domain = getDomainFromUrl(url);
+  if (domain === null) {
+    return true;
+  }
+
+  return ["127.0.0.1", "", "::1"].includes(domain) ||
+    domain.startsWith("localhost") ||
+    domain.startsWith("192.168.") ||
+    domain.startsWith("10.");
+}
+
+
 export function addDataTracking<Data extends BaseTrackingData<Data>>(
   router: Router,
   options: AddDataTrackingOptions<Data>
@@ -32,6 +57,9 @@ export function addDataTracking<Data extends BaseTrackingData<Data>>(
 
   router.put(path, async (req, res) => {
     const data = req.body;
+    if (isTestRequest(req)) {
+      data.test = true;
+    }
     const maybe = S.decodeUnknownEither(dataSchema)(data);
 
     if (Either.isLeft(maybe)) {
@@ -73,6 +101,9 @@ export function addDataTracking<Data extends BaseTrackingData<Data>>(
 
   router.patch(`${path}/:uuid`, async (req, res) => {
     const data = req.body;
+    if (isTestRequest(req)) {
+      data.test = true;
+    }
 
     const maybe = S.decodeUnknownEither(updateSchema)(data);
     if (Either.isLeft(maybe)) {

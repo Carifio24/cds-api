@@ -61,6 +61,10 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
     }
   }
 
+  if (update.test != undefined) {
+    dbUpdate.test = update.test;
+  }
+
   return data.update(dbUpdate).catch(_err => null);
 
 }
