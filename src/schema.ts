@@ -1,9 +1,9 @@
 import * as S from "@effect/schema/Schema";
-import type { Simplify } from "effect/Types";
-import { DataTypes, ModelAttributeColumnOptions, ModelStatic, type Model } from "sequelize";
+import { Simplify } from "effect/Types";
+import { DataTypes, InferCreationAttributes, ModelAttributeColumnOptions, ModelStatic, type Model } from "sequelize";
+import { BaseTrackingData } from "./models/base_tracking_data";
 
-
-export type EntryType<UpdateType> = Simplify<UpdateType & { readonly user_uuid: string }>;
+const USER_UUID_KEY = "user_uuid" as const;
 
 /**
  * JC notes:
@@ -16,30 +16,34 @@ export type EntryType<UpdateType> = Simplify<UpdateType & { readonly user_uuid: 
  * two separate definitions!
  */
 
-type AttributeEffectSchema<P> = S.Schema<P | undefined, P | undefined, never>;
+type AttributeEffectSchema<P> = S.Schema<P | undefined>;
 type AttributeEffectSignature<P> = S.PropertySignature<P | undefined, true, P | undefined, true>
 type AttributeEffect<P> = AttributeEffectSchema<P> | AttributeEffectSignature<P>;
-type ModelEffect<M extends Model> = { [K in keyof M]: AttributeEffect<M[K]> };
-type ModelEffectSchema<M extends Model> = S.Schema<Simplify<S.ToStruct<ModelEffect<M>>>, Simplify<S.FromStruct<ModelEffect<M>>>, S.Schema.Context<ModelEffect<M>[keyof M]>>;
+type ModelEffect<M extends Model> = { [K in keyof InferCreationAttributes<M>]: InferCreationAttributes<M>[K] extends readonly unknown[] ? Readonly<InferCreationAttributes<M>[K]> : InferCreationAttributes<M>[K] };
+// type _ModelEffectSchemaWithContext<M extends Model> = S.Schema<Simplify<S.ToStruct<ModelEffect<M>>>, Simplify<S.FromStruct<ModelEffect<M>>>, S.Schema.Context<ModelEffect<M>[keyof InferCreationAttributes<M>]>>;
+// export type ModelEffectSchema<M extends Model> = S.Schema<Simplify<S.ToStruct<ModelEffect<M>>>, Simplify<S.FromStruct<ModelEffect<M>>>, never>;
+export type ModelEffectSchema<M extends Model> = S.Schema<ModelEffect<M>>;
+
+type UUIDRemoved<M extends Model> = Omit<M, typeof USER_UUID_KEY>;
 
 export function modelToEffectSchema<M extends Model>(modelType: ModelStatic<M>): ModelEffectSchema<M> {
-  const structOptions = {} as { [K in keyof M]: AttributeEffect<M[K]> };
+
+  const structOptions = {} as { [K in keyof InferCreationAttributes<M>]: AttributeEffect<InferCreationAttributes<M>[K]> };
   const attributes = modelType.getAttributes();
   Object.entries(attributes).forEach(entry => {
-    const key = entry[0] as keyof M;
+    const key = entry[0] as keyof InferCreationAttributes<M>;
     const attr = entry[1];
-    let schema = schemaForAttribute(attr) as AttributeEffectSchema<M[typeof key]> | null;
+    let schema = schemaForAttribute(attr) as AttributeEffectSchema<InferCreationAttributes<M>[typeof key]> | null;
     if (!schema) {
       return;
     }
     const item = attr.defaultValue !== undefined ? S.optional(schema) : schema;
     structOptions[key] = item;
   });
-  return S.struct(structOptions);
-}
-
-export function createEntrySchema<T>(dataSchema: S.Schema<T,T,never>): S.Schema<EntryType<T>, EntryType<T>, never> {
-  return S.extend(dataSchema, S.struct({ user_uuid: S.string }));
+  
+  // We need to type-cast here because effect will infer that we need a context
+  // We don't - since we're using InferCreationAttributes the result will be a primitive type
+  return S.struct(structOptions) as unknown as ModelEffectSchema<M>;
 }
 
 function schemaForAttribute<M extends Model>(attribute: ModelAttributeColumnOptions<M>) {

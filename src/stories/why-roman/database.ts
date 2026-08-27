@@ -2,13 +2,13 @@ import * as S from "@effect/schema/Schema";
 import type { CreationAttributes } from "sequelize";
 
 import { logger } from "../../logger";
-import { createEntrySchema, modelToEffectSchema } from "../../schema";
+import { modelToEffectSchema } from "../../schema";
 import { WhyRomanData } from "./models/why_roman_data";
 import { UpdateAttributes } from "../../utils";
 
 
-export const WhyRomanUpdate = modelToEffectSchema(WhyRomanData);
-export const WhyRomanEntry = createEntrySchema(WhyRomanUpdate);
+export const WhyRomanEntry = modelToEffectSchema(WhyRomanData);
+export const WhyRomanUpdate = WhyRomanEntry.pipe(S.omit("user_uuid"));
 
 export type WhyRomanUpdateT = S.Schema.To<typeof WhyRomanUpdate>;
 export type WhyRomanEntryT = S.Schema.To<typeof WhyRomanEntry>;
@@ -16,10 +16,6 @@ export type WhyRomanEntryT = S.Schema.To<typeof WhyRomanEntry>;
 export async function submitWhyRomanData(data: WhyRomanEntryT): Promise<WhyRomanData | null> {
   logger.verbose(`Attempting to submit why-roman data for user ${data.user_uuid}`);
   return WhyRomanData.upsert(data).then(([item, _]) => item);
-}
-
-export async function getAllWhyRomanData(): Promise<WhyRomanData[]> {
-  return WhyRomanData.findAll();
 }
 
 export async function getWhyRomanData(userUUID: string): Promise<WhyRomanData | null> {

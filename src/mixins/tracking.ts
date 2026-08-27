@@ -1,31 +1,35 @@
 import * as Either from "effect/Either";
 import * as S from "@effect/schema/Schema";
 import type { Router } from "express";
+import type { ModelStatic } from "sequelize";
 
 import { BaseTrackingData } from "../models/base_tracking_data";
-import type { EntryType } from "../schema";
+import { modelToEffectSchema, type ModelEffectSchema } from "../schema";
 
+type AllGetter<Data> = () => Promise<Data[]>;
+type Getter<Data extends BaseTrackingData<Data>> = (id: string) => Promise<Data | null>;
 
-export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>> {
-  dataSchema: S.Schema<Data, Data, never>;
-  submitter: (data: EntryType<Data>) => Promise<void>;
-  allGetter: () => Promise<Data[]>;
-  getter: (id: string) => Promise<Data>;
-  updater: (id: string, data: Data) => Promise<Data | null>;
+export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>, Update> {
+  updateSchema: S.Schema<Update>;
+  model: ModelStatic<Data>;
+  submitter: (data: S.Schema.To<ModelEffectSchema<Data>>) => Promise<Data | null>;
+  allGetter?: AllGetter<Data>;
+  getter: Getter<Data>;
+  updater: (id: string, data: Update) => Promise<Data | null>;
   dataPath?: string;
 }
 
-export function addDataTracking<Data extends BaseTrackingData<Data>>(
+export function addDataTracking<Data extends BaseTrackingData<Data>, Update>(
   router: Router,
-  options: AddDataTrackingOptions<Data>
+  options: AddDataTrackingOptions<Data, Update>
 ) {
 
-  const entrySchema = S.extend(options.dataSchema, S.struct({ user_uuid: S.string }));
   const path = options.dataPath ?? "/data";
+  const dataSchema = modelToEffectSchema(options.model);
 
   router.put(path, async (req, res) => {
     const data = req.body;
-    const maybe = S.decodeUnknownEither(entrySchema)(data);
+    const maybe = S.decodeUnknownEither(dataSchema)(data);
 
     if (Either.isLeft(maybe)) {
       res.status(400).json({
@@ -45,8 +49,9 @@ export function addDataTracking<Data extends BaseTrackingData<Data>>(
     res.json(response);
   });
 
+  const allGetter: AllGetter<Data> = options.allGetter ?? options.model.findAll;
   router.get(path, async (_req, res) => {
-    const data = await options.allGetter();
+    const data = await allGetter();
     res.json(data); 
   });
 
@@ -66,7 +71,7 @@ export function addDataTracking<Data extends BaseTrackingData<Data>>(
   router.patch(`${path}/:uuid`, async (req, res) => {
     const data = req.body;
 
-    const maybe = S.decodeUnknownEither(options.dataSchema)(data);
+    const maybe = S.decodeUnknownEither(options.updateSchema)(data);
     if (Either.isLeft(maybe)) {
       res.status(400).json({
         error: `Malformed update submission: ${maybe.left.error}`,
@@ -83,6 +88,7 @@ export function addDataTracking<Data extends BaseTrackingData<Data>>(
       return;
     }
 
+    const x = maybe.right;
     const response = await options.updater(uuid, maybe.right);
     if (response === null) {
       res.status(500).json({

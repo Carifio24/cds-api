@@ -1,7 +1,7 @@
 import { CreationOptional, DataTypes, type Model, Sequelize } from "sequelize";
 import { ModelBase } from "../utils";
 
-export class BaseTrackingData<T extends Model> extends ModelBase<T> {
+export class BaseTrackingData<M extends Model> extends ModelBase<M> {
   declare id: CreationOptional<number>;
   declare user_uuid: string;
   declare app_time_ms: CreationOptional<number>;
