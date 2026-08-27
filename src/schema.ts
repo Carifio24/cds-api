@@ -1,6 +1,5 @@
 import * as S from "@effect/schema/Schema";
 import { DataTypes, InferCreationAttributes, ModelAttributeColumnOptions, ModelStatic, type Model } from "sequelize";
-import { BaseTrackingData } from "./models/base_tracking_data";
 
 /**
  * JC notes:
@@ -28,7 +27,7 @@ export function modelToEffectSchema<M extends Model>(modelType: ModelStatic<M>):
   Object.entries(attributes).forEach(entry => {
     const key = entry[0] as keyof InferCreationAttributes<M>;
     const attr = entry[1];
-    let schema = schemaForAttribute(attr) as AttributeEffectSchema<InferCreationAttributes<M>[typeof key]> | null;
+    const schema = schemaForAttribute(attr) as AttributeEffectSchema<InferCreationAttributes<M>[typeof key]> | null;
     if (!schema) {
       return;
     }
@@ -64,10 +63,11 @@ function schemaForAttribute<M extends Model>(attribute: ModelAttributeColumnOpti
   }
 
   switch (type) {
-    case DataTypes.ENUM.key:
+    case DataTypes.ENUM.key: {
       const options: Record<string, string | number> = {};
       attribute.values?.forEach(val => { options[val] = val; });
       return S.enums(options);
+    }
 
     // TODO: What to do about dates?
     case DataTypes.DATE.key:
