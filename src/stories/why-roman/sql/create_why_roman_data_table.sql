@@ -9,7 +9,7 @@ CREATE TABLE WhyRomanData (
     zoom_to_pixel_scale_count INT UNSIGNED NOT NULL DEFAULT 0,
     about_roman_time_ms INT UNSIGNED NOT NULL DEFAULT 0,
     user_guide_time_ms INT UNSIGNED NOT NULL DEFAULT 0,
-    control_time_open_ms INT UNSIGNED NOT NULL DEFAULT 0,
+    controls_open_time_ms INT UNSIGNED NOT NULL DEFAULT 0,
     slider_min_press_count INT UNSIGNED NOT NULL DEFAULT 0,
     slider_max_press_count INT UNSIGNED NOT NULL DEFAULT 0,
     slider_label_press_count INT UNSIGNED NOT NULL DEFAULT 0,

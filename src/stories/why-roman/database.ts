@@ -32,12 +32,14 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
     return WhyRomanData.create(creationData);
   }
 
+  console.log(update);
+
   const dbUpdate: UpdateAttributes<WhyRomanData> = {
     last_updated: new Date(),
   };
 
-  if (update.max_andromeda_step != null) {
-    dbUpdate.max_andromeda_step = Math.max(data.max_andromeda_step, update.max_andromeda_step);
+  if (update.max_andromeda_tour_step != null) {
+    dbUpdate.max_andromeda_tour_step = Math.max(data.max_andromeda_tour_step, update.max_andromeda_tour_step);
   }
 
   const countKeys = [
@@ -47,7 +49,7 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
     "app_time_ms",
     "about_roman_time_ms",
     "user_guide_time_ms",
-    "control_time_open_ms",
+    "controls_open_time_ms",
     "slider_min_press_count",
     "slider_max_press_count",
     "slider_label_press_count",
@@ -64,6 +66,8 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
   if (update.test != undefined) {
     dbUpdate.test = update.test;
   }
+
+  console.log(dbUpdate);
 
   return data.update(dbUpdate).catch(_err => null);
 

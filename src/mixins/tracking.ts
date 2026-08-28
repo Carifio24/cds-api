@@ -1,5 +1,6 @@
 import * as Either from "effect/Either";
 import * as S from "@effect/schema/Schema";
+import * as JSONSchema from "@effect/schema/JSONSchema";
 import type { Simplify } from "effect/Types";
 import { parseError } from "@effect/schema/ParseResult";
 import type { Request, Router } from "express";

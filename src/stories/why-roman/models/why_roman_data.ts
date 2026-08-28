@@ -2,13 +2,13 @@ import { CreationOptional, DataTypes, Sequelize } from "sequelize";
 import { BaseTrackingData } from "../../../models/base_tracking_data";
 
 export class WhyRomanData extends BaseTrackingData<WhyRomanData> {
-  declare max_andromeda_step: CreationOptional<number>;
+  declare max_andromeda_tour_step: CreationOptional<number>;
   declare zoom_to_pixel_scale_count: CreationOptional<number>;
   declare tour_restarted_count: CreationOptional<number>;
   declare side_controls_opened_count: CreationOptional<number>;
   declare about_roman_time_ms: CreationOptional<number>;
   declare user_guide_time_ms: CreationOptional<number>;
-  declare control_time_open_ms: CreationOptional<number>;
+  declare controls_open_time_ms: CreationOptional<number>;
   declare slider_min_press_count: CreationOptional<number>;
   declare slider_max_press_count: CreationOptional<number>;
   declare slider_label_press_count: CreationOptional<number>;
@@ -19,7 +19,7 @@ export class WhyRomanData extends BaseTrackingData<WhyRomanData> {
 export function initializeWhyRomanDataModel(sequelize: Sequelize) {
   WhyRomanData.init({
     ...BaseTrackingData.ATTRIBUTES,
-    max_andromeda_step: {
+    max_andromeda_tour_step: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       defaultValue: 0,
@@ -53,7 +53,7 @@ export function initializeWhyRomanDataModel(sequelize: Sequelize) {
       allowNull: false,
       defaultValue: 0,
     },
-    control_time_open_ms: {
+    controls_open_time_ms: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       defaultValue: 0,
