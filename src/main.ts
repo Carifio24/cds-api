@@ -4,6 +4,7 @@ import { createApp } from "./server";
 import { getDatabaseConnection } from "./database";
 import { storyRouter } from "./story_router";
 import { setupSwaggerDocs } from "./openapi/utils";
+import { Router } from "express";
 
 const STORIES_DIR = join(__dirname, "stories");
 const MAIN_FILE = "main.js";
@@ -20,9 +21,11 @@ entries.forEach(entry => {
       const file = join(STORIES_DIR, entry.name, MAIN_FILE);
       import(file).then(data => {
         data.setup(app, db);
-        app.use(data.path, data.router);
+        // express.Router is a factory function, so we need to do this
+        const router = Object.getPrototypeOf(data.router) === Router ? data.router : data.router();
+        app.use(data.path, router);
         resolve();
-      }).catch(_err => {});
+      }).catch(err => console.error(err));
     } else {
       resolve();
     }

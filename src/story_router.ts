@@ -2,20 +2,21 @@ import { Router } from "express";
 import { addUserExperience } from "./mixins/user_experience";
 import { AddDataTrackingOptions, addDataTracking } from "./mixins/tracking";
 import { addVisit } from "./mixins/visit";
+import { BaseTrackingData } from "./models/base_tracking_data";
 
-export interface StoryRouterOptions<Data> {
+export interface StoryRouterOptions<Data extends BaseTrackingData<Data>> {
   storyName: string;
   userExperience?: boolean;
   visit?: boolean;
   dataTracking?: AddDataTrackingOptions<Data>;
 }
 
-export function storyRouter<Data>(options: StoryRouterOptions<Data>): Router {
+export function storyRouter<Data extends BaseTrackingData<Data>>(options: StoryRouterOptions<Data>): Router {
   const router = Router();
 
   if (options.userExperience) {
     addUserExperience(router, options);
-  }
+  } 
   if (options.dataTracking) {
     addDataTracking(router, options.dataTracking);
   }

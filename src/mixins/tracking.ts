@@ -1,31 +1,70 @@
 import * as Either from "effect/Either";
-import type { Simplify } from "effect/Types";
 import * as S from "@effect/schema/Schema";
-import type { Router } from "express";
+import type { Simplify } from "effect/Types";
+import { parseError } from "@effect/schema/ParseResult";
+import type { Request, Router } from "express";
+import type { InferCreationAttributes, ModelStatic } from "sequelize";
 
-export interface AddDataTrackingOptions<Data> {
-  dataSchema: S.Schema<Data, Data, never>;
-  submitter: (data: Simplify<Data & { readonly user_uuid: string }>) => Promise<void>;
-  getter: (id: string) => Promise<Data>;
-  updater: (id: string, data: Data) => Promise<Data | null>;
+import { BaseTrackingData } from "../models/base_tracking_data";
+import { modelToEffectSchema, type ModelEffectSchema } from "../schema";
+
+type AllGetter<Data> = () => Promise<Data[]>;
+type Getter<Data extends BaseTrackingData<Data>> = (id: string) => Promise<Data | null>;
+type UpdateType<Data extends BaseTrackingData<Data>> = Simplify<Omit<InferCreationAttributes<Data>, "user_uuid">>;
+
+export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>> {
+  model: ModelStatic<Data>;
+  submitter: (data: S.Schema.To<ModelEffectSchema<Data>>) => Promise<Data | null>;
+  allGetter?: AllGetter<Data>;
+  getter: Getter<Data>;
+  updater: (id: string, data: UpdateType<Data>) => Promise<Data | null>;
   dataPath?: string;
 }
 
-export function addDataTracking<Data>(
+function getDomainFromUrl(url: string): string | null {
+  const regex = /^(?:https?:\/\/)?(?:www\.)?([^/\s]+)/i;
+  const match = url.match(regex);
+  return match ? match[1] : null; 
+}
+
+function isTestRequest(request: Request): boolean {
+  const headers = request.headers;
+  const url = headers.origin || headers.referer;
+  if (!url) {
+    return true;
+  }
+
+  const domain = getDomainFromUrl(url);
+  if (domain === null) {
+    return true;
+  }
+
+  return ["127.0.0.1", "", "::1"].includes(domain) ||
+    domain.startsWith("localhost") ||
+    domain.startsWith("192.168.") ||
+    domain.startsWith("10.");
+}
+
+
+export function addDataTracking<Data extends BaseTrackingData<Data>>(
   router: Router,
   options: AddDataTrackingOptions<Data>
 ) {
 
-  const entrySchema = S.extend(options.dataSchema, S.struct({ user_uuid: S.string }));
   const path = options.dataPath ?? "/data";
+  const dataSchema = modelToEffectSchema(options.model);
+  const updateSchema = dataSchema.pipe(S.omit("user_uuid" as keyof InferCreationAttributes<Data>));
 
   router.put(path, async (req, res) => {
     const data = req.body;
-    const maybe = S.decodeUnknownEither(entrySchema)(data);
+    if (isTestRequest(req)) {
+      data.test = true;
+    }
+    const maybe = S.decodeUnknownEither(dataSchema)(data);
 
     if (Either.isLeft(maybe)) {
       res.status(400).json({
-        error: `Malformed data submission: ${maybe.left.error}`,
+        error: `Malformed data submission: ${parseError(maybe.left.error).toString()}`,
       });
       return;
     }
@@ -39,6 +78,12 @@ export function addDataTracking<Data>(
     }
 
     res.json(response);
+  });
+
+  const allGetter: AllGetter<Data> = options.allGetter ?? options.model.findAll;
+  router.get(path, async (_req, res) => {
+    const data = await allGetter();
+    res.json(data); 
   });
 
   router.get(`${path}/:uuid`, async (req, res) => {
@@ -56,11 +101,15 @@ export function addDataTracking<Data>(
 
   router.patch(`${path}/:uuid`, async (req, res) => {
     const data = req.body;
+    if (isTestRequest(req)) {
+      data.test = true;
+    }
 
-    const maybe = S.decodeUnknownEither(options.dataSchema)(data);
+    const maybe = S.decodeUnknownEither(updateSchema)(data);
     if (Either.isLeft(maybe)) {
+      console.error(maybe.left.error);
       res.status(400).json({
-        error: `Malformed update submission: ${maybe.left.error}`,
+        error: `Malformed update submission: ${parseError(maybe.left.error).toString()}`,
       });
       return;
     }
@@ -74,14 +123,14 @@ export function addDataTracking<Data>(
       return;
     }
 
-    const response = await options.updater(uuid, maybe.right);
-    if (response === null) {
+    const updated = await options.updater(uuid, maybe.right);
+    if (updated === null) {
       res.status(500).json({
         error: "Error updating user data",
       });
       return;
     }
-    res.json(response);
+    res.json(updated);
   });
 
   return router;
