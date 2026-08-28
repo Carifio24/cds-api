@@ -1,5 +1,6 @@
 import * as S from "@effect/schema/Schema";
 import { DataTypes, InferCreationAttributes, ModelAttributeColumnOptions, ModelStatic, type Model } from "sequelize";
+import { arrayType } from "./utils";
 
 /**
  * JC notes:
@@ -80,7 +81,7 @@ function schemaForAttribute<M extends Model>(attribute: ModelAttributeColumnOpti
       return S.boolean;
 
     case DataTypes.JSON.key:
-      return S.object;
+      return S.union(S.object, S.array(S.unknown));
   }
 
   return null;

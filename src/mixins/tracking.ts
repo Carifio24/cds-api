@@ -108,8 +108,9 @@ export function addDataTracking<Data extends BaseTrackingData<Data>>(
 
     const maybe = S.decodeUnknownEither(updateSchema)(data);
     if (Either.isLeft(maybe)) {
+      console.error(maybe.left.error);
       res.status(400).json({
-        error: `Malformed updatesubmission: ${parseError(maybe.left.error).toString()}`,
+        error: `Malformed update submission: ${parseError(maybe.left.error).toString()}`,
       });
       return;
     }

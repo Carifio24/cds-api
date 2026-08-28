@@ -32,14 +32,23 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
     return WhyRomanData.create(creationData);
   }
 
-  console.log(update);
-
   const dbUpdate: UpdateAttributes<WhyRomanData> = {
     last_updated: new Date(),
   };
 
   if (update.max_andromeda_tour_step != null) {
     dbUpdate.max_andromeda_tour_step = Math.max(data.max_andromeda_tour_step, update.max_andromeda_tour_step);
+  }
+
+  const updateToggleCounts = update.footprints_toggle_count;
+  if (updateToggleCounts) {
+    const toggleCounts: Record<string, number> = {};
+    if (update.footprints_toggle_count) {
+      Object.keys(update.footprints_toggle_count).forEach(key => {
+        toggleCounts[key] = updateToggleCounts[key] + (data.footprints_toggle_count[key] ?? 0);
+      });
+    }
+    dbUpdate.footprints_toggle_count = toggleCounts;
   }
 
   const countKeys = [
@@ -67,8 +76,5 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
     dbUpdate.test = update.test;
   }
 
-  console.log(dbUpdate);
-
   return data.update(dbUpdate).catch(_err => null);
-
 }

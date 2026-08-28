@@ -13,7 +13,7 @@ export class WhyRomanData extends BaseTrackingData<WhyRomanData> {
   declare slider_max_press_count: CreationOptional<number>;
   declare slider_label_press_count: CreationOptional<number>;
   declare slider_move_count: CreationOptional<number>;
-  declare footprints_toggle_count: CreationOptional<JSON>;
+  declare footprints_toggle_count: CreationOptional<Record<string,number>>;
 }
 
 export function initializeWhyRomanDataModel(sequelize: Sequelize) {
