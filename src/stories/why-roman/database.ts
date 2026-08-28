@@ -41,8 +41,9 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
   }
 
   const updateToggleCounts = update.footprints_toggle_count;
-  if (updateToggleCounts) {
-    const toggleCounts: Record<string, number> = {};
+  const updateFootprintCounts = updateToggleCounts && Object.keys(updateToggleCounts).length > 0;
+  if (updateFootprintCounts) {
+    const toggleCounts: Record<string, number> = data.footprints_toggle_count;
     if (update.footprints_toggle_count) {
       Object.keys(update.footprints_toggle_count).forEach(key => {
         toggleCounts[key] = updateToggleCounts[key] + (data.footprints_toggle_count[key] ?? 0);
@@ -76,5 +77,11 @@ export async function updateWhyRomanData(userUUID: string, update: WhyRomanUpdat
     dbUpdate.test = update.test;
   }
 
-  return data.update(dbUpdate).catch(_err => null);
+  // Working around some Sequelize JSON weirdness
+  await data.update(dbUpdate).catch(_err => null);
+  if (updateFootprintCounts) {
+    data.footprints_toggle_count = dbUpdate.footprints_toggle_count as Record<string, number>;
+    data.changed("footprints_toggle_count", true);
+  }
+  return data.save();
 }

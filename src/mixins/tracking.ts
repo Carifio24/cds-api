@@ -123,14 +123,14 @@ export function addDataTracking<Data extends BaseTrackingData<Data>>(
       return;
     }
 
-    const response = await options.updater(uuid, maybe.right);
-    if (response === null) {
+    const updated = await options.updater(uuid, maybe.right);
+    if (updated === null) {
       res.status(500).json({
         error: "Error updating user data",
       });
       return;
     }
-    res.json(response);
+    res.json(updated);
   });
 
   return router;
