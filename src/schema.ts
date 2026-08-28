@@ -1,6 +1,5 @@
 import * as S from "@effect/schema/Schema";
 import { DataTypes, InferCreationAttributes, ModelAttributeColumnOptions, ModelStatic, type Model } from "sequelize";
-import { arrayType } from "./utils";
 
 /**
  * JC notes:

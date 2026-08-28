@@ -1,6 +1,5 @@
 import * as Either from "effect/Either";
 import * as S from "@effect/schema/Schema";
-import * as JSONSchema from "@effect/schema/JSONSchema";
 import type { Simplify } from "effect/Types";
 import { parseError } from "@effect/schema/ParseResult";
 import type { Request, Router } from "express";
@@ -23,7 +22,7 @@ export interface AddDataTrackingOptions<Data extends BaseTrackingData<Data>> {
 }
 
 function getDomainFromUrl(url: string): string | null {
-  const regex = /^(?:https?:\/\/)?(?:www\.)?([^\/\s]+)/i;
+  const regex = /^(?:https?:\/\/)?(?:www\.)?([^/\s]+)/i;
   const match = url.match(regex);
   return match ? match[1] : null; 
 }
