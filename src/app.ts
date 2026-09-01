@@ -1,4 +1,4 @@
-import express, { Express, RequestHandler, ErrorRequestHandler } from "express";
+import express, { ErrorRequestHandler, Express, RequestHandler, Router } from "express";
 import session from "express-session";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -159,6 +159,13 @@ export function setupApp(app: Express, db: Sequelize) {
 
 }
 
+function getRouter(info: StoryInfo): Router {
+  // express.Router is a factory function, so we need to do this
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  return Object.getPrototypeOf(info.router) === Router ? info.router : info.router();
+}
+
 interface CreateAppParams {
   db: Sequelize;
   storiesDir: string;
@@ -184,7 +191,8 @@ export async function createApp(params: CreateAppParams) {
       const data = require(file) as StoryInfo;
       storiesData.push(data);
       data.setup(storyParams);
-      app.use(data.path, data.router);
+      const router = getRouter(data);
+      app.use(data.path, router);
     }
   });
 
@@ -206,15 +214,15 @@ export async function createApp(params: CreateAppParams) {
       "pinwheel-supernova", "green-comet", "annular-eclipse-2023",
       "rubin-first-look", "tempo-lab",
     ];
-    stories.forEach(story => {
-      const router = storyRouter(story);
-      app.use(`/${story}`, router);
+    stories.forEach(storyName => {
+      const router = storyRouter({ storyName });
+      app.use(`/${storyName}`, router);
     });
   }
 
   setupOpenAPI(app);
   setupRoutes(app, { sendEmails: params.sendEmails ?? true });
-  storiesData.forEach(data => data.createEndpoints(data.router));
+  storiesData.forEach(data => data.createEndpoints(getRouter(data)));
 
   return app;
 }

@@ -11,7 +11,7 @@ export type StorySetupFunction = (params: StorySetupParams) => void;
 
 export interface StoryInfo {
   path: string,
-  router: Express | Router;
+  router: Express | Router | (() => Router);
   setup: StorySetupFunction;
   createEndpoints: (router: Router) => void;
 }
