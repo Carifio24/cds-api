@@ -10,7 +10,7 @@ import {
 } from "./database";
 import { initializeModels } from "./models";
 import { storyRouter } from "../../story_router";
-import { StorySetupParams } from "../../types";
+import type { StorySetupParams } from "../../types";
 
 export const router = storyRouter({
   storyName: "solar-eclipse-2026",
