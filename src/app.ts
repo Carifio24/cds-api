@@ -222,7 +222,11 @@ export async function createApp(params: CreateAppParams) {
 
   setupOpenAPI(app);
   setupRoutes(app, { sendEmails: params.sendEmails ?? true });
-  storiesData.forEach(data => data.createEndpoints(getRouter(data)));
+  storiesData.forEach(data => {
+    if (data.createEndpoints) {
+      data.createEndpoints(getRouter(data));
+    }
+  });
 
   return app;
 }

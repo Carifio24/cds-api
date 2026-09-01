@@ -13,5 +13,5 @@ export interface StoryInfo {
   path: string,
   router: Express | Router | (() => Router);
   setup: StorySetupFunction;
-  createEndpoints: (router: Router) => void;
+  createEndpoints?: (router: Router) => void;
 }
