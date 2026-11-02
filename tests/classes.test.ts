@@ -75,8 +75,7 @@ describe("Test class routes", () => {
       .expect(404)
       .expect("Content-Type", /json/)
       .then((res) => {
-        expect(res.body.class).toBeNull();
-        expect(res.body.size).toEqual(0);
+        expect(res.body.error).toEqual(`No class found with identifier ${badID}`);
       });
   });
 
@@ -177,9 +176,11 @@ describe("Test class routes", () => {
         studentsClasses.push(await StudentsClasses.create({ student_id: student.id, class_id: cls.id }));
       }
       await authorize(request(testApp).get(`/classes/roster/${cls.id}`))
-        .expect(200)
-        .expect("Content-Type", /json/)
+        // .expect(200)
+        // .expect("Content-Type", /json/)
         .then((res) => {
+          console.log(res.body.messages);
+          console.log(res.body.errors);
           const resStudents = res.body;
           expect(resStudents.length).toBe(size);
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment

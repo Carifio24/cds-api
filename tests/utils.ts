@@ -2,7 +2,7 @@
 
 import fs from "fs";
 import { join } from "path";
-import type { Express } from "express";
+import express, { Express } from "express";
 import type { Server } from "http";
 import type { Response, Test } from "supertest";
 import { InferAttributes, CreationAttributes, Model, Sequelize, UniqueConstraintError } from "sequelize";
@@ -23,7 +23,7 @@ import {
   StudentsClasses,
   initializeModels
 } from "../src/models";
-import { createApp } from "../src/server";
+import { setupRoutes } from "../src/server";
 import { Class, Student } from "../src/models";
 import { APIKey } from "../src/models/api_key";
 import { config } from "dotenv";
@@ -31,7 +31,8 @@ import { v4 } from "uuid";
 import { getDatabaseConnection } from "../src/database";
 import { createConnection, Connection } from "mysql2/promise";
 import { hashAPIKey } from "../src/authorization";
-import { setupApp } from "../src/app";
+import { setupOpenAPI } from "../src/openapi/utils";
+import { createApp, setupApp } from "../src/app";
 
 export function authorize(request: Test): Test {
   return request.set({ Authorization: process.env.CDS_API_KEY });
@@ -159,32 +160,16 @@ export async function addTestData() {
 }
 
 export async function createTestApp(db: Sequelize): Promise<Express> {
-  const app = createApp(db, { sendEmails : false });
-  setupApp(app, db);
-
   const storiesDir = join(__dirname, "..", "src", "stories");
-  const entries = fs.readdirSync(storiesDir, { withFileTypes: true });
-  entries.forEach(entry => {
-    if (entry.isDirectory()) {
-      const file = join(storiesDir, entry.name, "main.ts");
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const data = require(file);
-      data.setup(app, db);
-      app.use(data.path, data.router);
-    }
+  return createApp({
+    db,
+    storiesDir,
+    mainFilename: "main.ts",
+    sendEmails: false,
+    sync: true,
+    storyRouters: false,
   });
-
-  for (const model of Object.values(db.models)) {
-    // Avoid issues like https://github.com/sequelize/sequelize/issues/12889
-    try {
-      await model.sync();
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  return app;
-}
+ }
 
 export function runApp(app: Express, port = 8080, callback?: () => void): Server {
   return app.listen(port, callback);

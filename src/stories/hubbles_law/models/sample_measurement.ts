@@ -46,37 +46,57 @@ export function initializeSampleHubbleMeasurementModel(sequelize: Sequelize) {
       type: DataTypes.ENUM("first", "second"),
       allowNull: false,
       defaultValue: "first",
-      primaryKey: true
+      primaryKey: true,
     },
     rest_wave_value: {
-      type: DataTypes.FLOAT
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: null,
     },
     rest_wave_unit: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
     },
     obs_wave_value: {
-      type: DataTypes.FLOAT
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: null,
     },
     obs_wave_unit: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
     },
     velocity_value: {
-      type: DataTypes.FLOAT
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: null,
     },
     velocity_unit: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
     },
     ang_size_value: {
-      type: DataTypes.FLOAT
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: null,
     },
     ang_size_unit: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
     },
     est_dist_value: {
-      type: DataTypes.FLOAT
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: null,
     },
     est_dist_unit: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
     },
     brightness: {
       type: DataTypes.FLOAT,

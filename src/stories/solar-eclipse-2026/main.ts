@@ -1,7 +1,11 @@
-import { router, setup } from "./router";
+import { StoryInfo } from "../../types";
+import { createEndpoints, router, setup } from "./router";
 
-module.exports = {
+const storyInfo: StoryInfo = {
   path: "/solar-eclipse-2026",
   router,
   setup,
+  createEndpoints,
 };
+
+module.exports = storyInfo;

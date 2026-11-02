@@ -1,6 +1,6 @@
 import { Schemas, schemas as baseSchemas } from "../../openapi/schemas";
 import { modelToSchema } from "../../openapi/utils";
-import { Galaxy, HubbleClassData, HubbleStudentData } from "./models";
+import { Galaxy, HubbleClassData, HubbleMeasurement, HubbleStudentData, SampleHubbleMeasurement } from "./models";
 
 const measurementInput = {
   type: "object",
@@ -23,25 +23,15 @@ const measurementInput = {
   }
 };
 
-const measurement = {
-  ...measurementInput,
-  required: ["student_id", "galaxy_id"],
-};
-
 const sampleMeasurementInput = {
   ...measurementInput,
   properties: {
     ...measurementInput.properties, 
     measurement_number: { 
       type: "string", 
-      // enum: ["first", "second"],
+      enum: ["first", "second"],
     },
   },
-};
-
-const sampleMeasurement = {
-  ...sampleMeasurementInput,
-  required: ["student_id", "galaxy_id"],
 };
 
 const minimalMeasurement = {
@@ -66,6 +56,15 @@ const minimalStudentData = {
   },
 };
 
+const minimalClassData = {
+  type: "object",
+  required: ["class_id", "age_value"],
+  properties: {
+    age_value: { type: "number" },
+    class_id: { type: "integer" },
+  },
+};
+
 const minimalGalaxy = {
   type: "object",
   required: ["id", "ra", "decl", "z", "type", "name", "element"],
@@ -83,18 +82,27 @@ const minimalGalaxy = {
   },
 };
 
+
+
 export function schemas(): Schemas {
+  const studentData = modelToSchema(HubbleStudentData);
+  studentData.properties.class_id = { type: ["integer", "null"] };
+
+  const measurement = modelToSchema(HubbleMeasurement);
+  measurement.properties.class_id = { type: ["integer", "null"] };
+
   return {
     ...baseSchemas(),
     Galaxy: modelToSchema(Galaxy),
-    HubbleStudentData: modelToSchema(HubbleStudentData),
+    HubbleStudentData: studentData,
     HubbleClassData: modelToSchema(HubbleClassData),
     HubbleMeasurementInput: measurementInput,
     HubbleMeasurement: measurement,
     HubbleSampleMeasurementInput: sampleMeasurementInput,
-    HubbleSampleMeasurement: sampleMeasurement,
+    HubbleSampleMeasurement: modelToSchema(SampleHubbleMeasurement),
     MinimalHubbleMeasurement: minimalMeasurement,
     MinimalHubbleStudentData: minimalStudentData,
+    MinimalHubbleClassData: minimalClassData,
     MinimalGalaxy: minimalGalaxy,
   };
 }

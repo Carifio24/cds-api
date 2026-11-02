@@ -4,6 +4,8 @@ import swaggerJSDoc, { OAS3Options, PathItem, Schema } from "swagger-jsdoc";
 import swaggerUi, { SwaggerUiOptions } from "swagger-ui-express";
 import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 import { GenericRequest, GenericResponse } from "../utils";
+import { middleware as openApiValidatorMiddleware } from "express-openapi-validator";
+import { OpenAPIV3 } from "express-openapi-validator/dist/framework/types";
 
 
 function typeInfoForAttribute<M extends Model>(attribute: ModelAttributeColumnOptions<M>): Record<string, unknown> | null{
@@ -14,24 +16,44 @@ function typeInfoForAttribute<M extends Model>(attribute: ModelAttributeColumnOp
     return { type: "string" };
   }
   if (type == DataTypes.ENUM.key) {
-    return { type: "string", enum: attribute.values };
+    return {
+      type: "string", 
+      enum: attribute.values
+    };
   }
-
   if (type == DataTypes.DATE.key) {
-    return { type: "string", format: "date-time" };
+    return {
+      type: "string", 
+      format: "date-time" 
+    };
   }
   if (type == DataTypes.DATEONLY.key) {
-    return { type: "string", format: "date" };
+    return {
+      type: "string", 
+      format: "date" 
+    };
   }
 
   const intTypes = [DataTypes.INTEGER, DataTypes.INTEGER.UNSIGNED].map(t => t.key);
   if (intTypes.includes(type)) {
-    return { type: "integer", format: "int32" };
+    return {
+      type: "integer", 
+      format: "int32" 
+    };
   }
 
   const bigIntTypes = [DataTypes.BIGINT, DataTypes.BIGINT.UNSIGNED].map(t => t.key);
   if (bigIntTypes.includes(type)) {
-    return { type: "integer", format: "int64" };
+    return {
+      type: "integer", 
+      format: "int64" 
+    };
+  }
+
+  if (type == DataTypes.FLOAT.key) {
+    return {
+      type: "number",
+    };
   }
 
   if (type == DataTypes.BOOLEAN.key) {
@@ -51,13 +73,19 @@ export function modelToSchema<M extends Model>(modelType: ModelStatic<M>): Schem
 
   const attributes = modelType.getAttributes();
   Object.entries(attributes).forEach(([key, attr]) => {
-    const info = typeInfoForAttribute(attr);
+    let info = typeInfoForAttribute(attr);
     if (info == null) {
       return;
     }
 
-    if (!attr.allowNull) {
+    if (!attr.allowNull && attr.defaultValue !== null) {
       required.push(key);
+    } else {
+      if ("enum" in info || "format" in info) {
+        info = { oneOf: [info, {type: "null"}] };
+      } else {
+        info["type"] = [info["type"], "null"];
+      }
     }
     properties[key] = info;
   });
@@ -113,7 +141,7 @@ function filterTags(spec: GenericObject) {
   spec.tags = tags.filter(tag => usedTags.has(tag["name"]));
 }
 
-export function setupSwaggerDocs(app: Express) {
+export function setupOpenAPI(app: Express) {
 
   const defaultDocsPath = "/docs";
   const urls = swaggerOptions.map(options => {
@@ -134,6 +162,26 @@ export function setupSwaggerDocs(app: Express) {
       res.setHeader("Content-Type", "application/json");
       res.send(swaggerSpec);
     });
+
+    if (process.env.NODE_ENV === "test") {
+      router.use(
+        openApiValidatorMiddleware({
+          apiSpec: swaggerSpec as OpenAPIV3.DocumentV3_1,
+          validateRequests: false,
+          validateResponses: {
+            onError: (error, _json) => {
+              console.log("OPENAPI ERROR");
+              console.error(error.message);
+              console.error(error.errors);
+              throw new Error(error.message);
+            },
+          },
+          useRequestUrl: true,
+          ajvFormats: ["date-time", "date", "int32"],
+          unknownFormats: ["email"],
+        })
+      );
+    }
   });
 
   const baseOptions = swaggerOptions[0];

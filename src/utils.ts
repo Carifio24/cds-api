@@ -159,3 +159,36 @@ export function creationToUpdateAttributes<M extends Model>(info: CreationAttrib
   return update;
 }
 
+function dateString(date: Date): string {
+  return isNaN(date.getTime()) ? "Invalid Date" : date.toISOString() ;
+}
+
+export function convertDatesToString<M extends Model>(item: M): object {
+  const itemJSON = item.toJSON();
+  Object.entries(itemJSON).forEach(([key, value]) => {
+    if (value instanceof Date) {
+      itemJSON[key] = dateString(value);
+    }
+  });
+  return itemJSON;
+}
+
+export function convertAllDatesToString(value: unknown): unknown {
+  if (!value) {
+    return value;
+  } else if (value instanceof Date) {
+    return dateString(value);
+  } else if (Array.isArray(value)) {
+    return value.map((item: unknown) => convertAllDatesToString(item));
+  } else if (value instanceof Model) {
+    return convertDatesToString(value);
+  } else if (typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    Object.entries(value).forEach(([key, val]) => {
+      result[key] = convertAllDatesToString(val);
+    });
+    return result;
+  } else {
+    return value;
+  }
+}

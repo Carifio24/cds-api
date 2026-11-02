@@ -87,7 +87,6 @@ export const CLASS_ATTRIBUTES = {
   status: {
     type: DataTypes.ENUM(...CLASS_STATUS_VALUES),
     allowNull: true,
-    defaultValue: null,
   },
 };
 
