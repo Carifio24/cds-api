@@ -2,7 +2,7 @@ FROM public.ecr.aws/docker/library/node:22-alpine
 
 WORKDIR /app
 
-COPY .eslintrc.json package.json package-lock.json tsconfig.json ./
+COPY .eslintrc.json package*.json tsconfig.json ./
 COPY src ./src
 COPY tests ./tests
 

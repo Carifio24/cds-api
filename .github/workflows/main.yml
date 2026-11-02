@@ -18,8 +18,8 @@ jobs:
         with:
           node-version: '22.14.0'
 
-      - name: Install modules
-        run: npm install
+      - name: Clean install
+        run: npm ci
 
       - name: Run ESLint
         run: npm run lint
