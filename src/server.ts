@@ -83,9 +83,8 @@ import * as S from "@effect/schema/Schema";
 import * as Either from "effect/Either";
 import { JSONSchema } from "@effect/schema";
 
-import { setupApp, uploader } from "./app";
+import { uploader } from "./app";
 import { getAPIKey, hasPermission } from "./authorization";
-import { Sequelize } from "sequelize";
 import { sendEmail } from "./email";
 import { logger } from "./logger";
 import { convertAllDatesToString, convertDatesToString } from "./utils";
