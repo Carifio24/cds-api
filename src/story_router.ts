@@ -14,7 +14,7 @@ export interface StoryRouterOptions<Data extends BaseTrackingData<Data>> {
 export function storyRouter<Data extends BaseTrackingData<Data>>(options: StoryRouterOptions<Data>): Router {
   const router = Router();
 
-  if (options.userExperience) {
+  if (options.userExperience ?? true) {
     addUserExperience(router, options);
   } 
   if (options.dataTracking) {
