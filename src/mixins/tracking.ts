@@ -80,7 +80,7 @@ export function addDataTracking<Data extends BaseTrackingData<Data>>(
     res.json(response);
   });
 
-  const allGetter: AllGetter<Data> = options.allGetter ?? options.model.findAll;
+  const allGetter: AllGetter<Data> = options.allGetter ?? (() => options.model.findAll());
   router.get(path, async (_req, res) => {
     const data = await allGetter();
     res.json(data); 
