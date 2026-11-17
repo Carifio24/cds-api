@@ -3,7 +3,7 @@ import type { CreationAttributes } from "sequelize";
 
 import { logger } from "../../logger";
 import { ModelEffectSchema } from "../../schema";
-import { VoyagerLightDayData, VoyagerLightDayData, VoyagerLightDayData } from "./models";
+import { VoyagerLightDayData } from "./models";
 import { UpdateAttributes } from "../../utils";
 
 type VoyagerLightDayEntryT = S.Schema.To<ModelEffectSchema<VoyagerLightDayData>>;
