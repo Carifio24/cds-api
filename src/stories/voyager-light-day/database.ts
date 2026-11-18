@@ -46,6 +46,7 @@ export async function updateVoyagerLightDayData(userUUID: string, update: Voyage
     "countdown_time_ms",
     "play_clicked_count",
     "mission_slider_use_count",
+    "mission_slider_tour_use_count",
   ] as const;
 
   for (const key of countKeys) {
