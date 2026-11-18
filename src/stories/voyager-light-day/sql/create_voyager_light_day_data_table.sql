@@ -7,6 +7,7 @@ CREATE TABLE VoyagerLightDayData (
     tour_time_ms INT UNSIGNED NOT NULL DEFAULT 0,
     countdown_time_ms INT UNSIGNED NOT NULL DEFAULT 0,
     mission_slider_use_count INT UNSIGNED NOT NULL DEFAULT 0,
+    mission_slider_tour_use_count INT UNSIGNED NOT NULL DEFAULT 0,
     play_clicked_count INT UNSIGNED NOT NULL DEFAULT 0,
     max_tour_step INT UNSIGNED NOT NULL DEFAULT 0,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
