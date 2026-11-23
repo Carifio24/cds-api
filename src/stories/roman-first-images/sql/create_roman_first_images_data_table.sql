@@ -1,4 +1,4 @@
-CREATE TABLE RomanFirstLookData (
+CREATE TABLE RomanFirstImagesData (
     id INT UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,
     user_uuid varchar(36) NOT NULL UNIQUE,
     test TINYINT UNSIGNED NOT NULL DEFAULT 0,
